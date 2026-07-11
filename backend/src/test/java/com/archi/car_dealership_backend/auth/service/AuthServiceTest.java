@@ -3,6 +3,7 @@ package com.archi.car_dealership_backend.auth.service;
 import com.archi.car_dealership_backend.auth.dto.AuthResponse;
 import com.archi.car_dealership_backend.auth.dto.RegisterRequest;
 import com.archi.car_dealership_backend.auth.exception.DuplicateResourceException;
+import com.archi.car_dealership_backend.auth.util.JwtUtil;
 import com.archi.car_dealership_backend.entity.User;
 import com.archi.car_dealership_backend.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -12,10 +13,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import static jdk.internal.org.objectweb.asm.util.CheckClassAdapter.verify;
-import static net.bytebuddy.matcher.ElementMatchers.any;
+
+import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.any;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
