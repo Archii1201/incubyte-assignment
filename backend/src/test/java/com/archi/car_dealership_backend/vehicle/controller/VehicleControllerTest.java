@@ -19,6 +19,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -93,5 +95,69 @@ class VehicleControllerTest {
                     {"make":"Toyota","model":"Corolla","category":"Sedan","price":22000,"quantity":5}
                     """))
                 .andExpect(status().isUnauthorized());
+    }
+    @Test
+    @WithMockUser
+    void getAllVehicles_returns200() throws Exception {
+
+        when(vehicleService.listVehicles())
+                .thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/api/vehicles"))
+                .andExpect(status().isOk());
+    }
+    @Test
+    @WithMockUser
+    void getAllVehicles_returnsEmptyList() throws Exception {
+
+        when(vehicleService.listVehicles())
+                .thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/api/vehicles"))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[]"));
+    }
+    @Test
+    @WithMockUser
+    void getAllVehicles_returnsVehicleList() throws Exception {
+
+        VehicleResponse vehicle =
+                new VehicleResponse(
+                        UUID.randomUUID(),
+                        "Toyota",
+                        "Corolla",
+                        "Sedan",
+                        new BigDecimal("22000"),
+                        5,
+                        "ACTIVE"
+                );
+
+        when(vehicleService.listVehicles())
+                .thenReturn(List.of(vehicle));
+
+        mockMvc.perform(get("/api/vehicles"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].make")
+                        .value("Toyota"))
+                .andExpect(jsonPath("$[0].model")
+                        .value("Corolla"));
+    }
+    @Test
+    void getAllVehicles_returns401_withoutAuthentication()
+            throws Exception {
+
+        mockMvc.perform(get("/api/vehicles"))
+                .andExpect(status().isUnauthorized());
+    }
+    @Test
+    @WithMockUser(roles = "USER")
+    void getAllVehicles_returns200_forUser()
+            throws Exception {
+
+        when(vehicleService.listVehicles())
+                .thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/api/vehicles"))
+                .andExpect(status().isOk());
     }
 }
