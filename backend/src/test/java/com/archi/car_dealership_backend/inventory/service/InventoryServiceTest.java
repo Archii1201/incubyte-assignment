@@ -163,4 +163,41 @@ class InventoryServiceTest {
         verify(vehicleRepository, never())
                 .save(any());
     }
+    @Test
+    void restockVehicle_success_increasesQuantity() {
+
+        UUID vehicleId = UUID.randomUUID();
+
+        Vehicle vehicle = Vehicle.builder()
+                .id(vehicleId)
+                .quantity(2)
+                .status(VehicleStatus.ACTIVE)
+                .build();
+
+        User admin = User.builder()
+                .email("admin@test.com")
+                .role(Role.ADMIN)
+                .build();
+
+        when(vehicleRepository.findById(vehicleId))
+                .thenReturn(Optional.of(vehicle));
+
+        when(userRepository.findByEmail("admin@test.com"))
+                .thenReturn(Optional.of(admin));
+
+        when(vehicleRepository.save(any()))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        inventoryService.restockVehicle(
+                vehicleId,
+                5,
+                "admin@test.com"
+        );
+
+        assertThat(vehicle.getQuantity())
+                .isEqualTo(7);
+
+        verify(transactionRepository)
+                .save(any(InventoryTransaction.class));
+    }
 }
