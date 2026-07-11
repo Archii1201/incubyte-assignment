@@ -28,7 +28,11 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.any;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -263,5 +267,53 @@ class VehicleControllerTest {
                     """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.make").value("Honda"));
+    }
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void deleteVehicle_returns204_whenSuccessful() throws Exception {
+
+        UUID id = UUID.randomUUID();
+
+        mockMvc.perform(delete("/api/vehicles/{id}", id))
+                .andExpect(status().isNoContent());
+
+        verify(vehicleService).deleteVehicle(id);
+    }
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void deleteVehicle_returns404_whenVehicleNotFound() throws Exception {
+
+        UUID id = UUID.randomUUID();
+
+        doThrow(new ResourceNotFoundException(
+                "Vehicle not found"))
+                .when(vehicleService)
+                .deleteVehicle(id);
+
+        mockMvc.perform(delete("/api/vehicles/{id}", id))
+                .andExpect(status().isNotFound());
+    }
+    @Test
+    @WithMockUser(roles = "USER")
+    void deleteVehicle_returns403_forUser() throws Exception {
+
+        UUID id = UUID.randomUUID();
+
+        mockMvc.perform(delete("/api/vehicles/{id}", id))
+                .andExpect(status().isForbidden());
+
+        verify(vehicleService, never())
+                .deleteVehicle(any());
+    }
+    @Test
+    void deleteVehicle_returns401_withoutAuthentication() throws Exception {
+
+        UUID id = UUID.randomUUID();
+
+        mockMvc.perform(delete("/api/vehicles/{id}", id))
+                .andExpect(status().isUnauthorized());
+
+        verify(vehicleService, never())
+                .deleteVehicle(any());
     }
 }
