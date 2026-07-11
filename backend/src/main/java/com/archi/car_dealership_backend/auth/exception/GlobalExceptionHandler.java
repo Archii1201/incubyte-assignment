@@ -1,4 +1,4 @@
-package com.archi.car_dealership_backend.exception;
+package com.archi.car_dealership_backend.auth.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

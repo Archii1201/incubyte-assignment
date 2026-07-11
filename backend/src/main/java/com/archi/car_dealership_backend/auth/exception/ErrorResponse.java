@@ -1,4 +1,4 @@
-package com.archi.car_dealership_backend.exception;
+package com.archi.car_dealership_backend.auth.exception;
 
 
 import java.time.LocalDateTime;
