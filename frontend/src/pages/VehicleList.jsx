@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import {
     searchVehicles,
     deleteVehicle,
+    purchaseVehicle,
 } from "../services/vehicleService";
 
 export default function VehicleList() {
@@ -34,49 +35,76 @@ export default function VehicleList() {
 
     const loadVehicles = async () => {
 
-    setLoading(true);
-    setError("");
+        setLoading(true);
+        setError("");
 
-    try {
+        try {
 
-        const params = {
-            page,
-            size,
-        };
+            const params = {
+                page,
+                size,
+            };
 
-        if (search.make.trim() !== "") {
-            params.make = search.make;
+            if (search.make.trim() !== "") {
+                params.make = search.make;
+            }
+
+            if (search.model.trim() !== "") {
+                params.model = search.model;
+            }
+
+            if (search.category.trim() !== "") {
+                params.category = search.category;
+            }
+
+            const data = await searchVehicles(params);
+
+            setVehicles(data.content);
+            setTotalPages(data.totalPages);
+
+        } catch (error) {
+
+            setError("Failed to load vehicles.");
+            console.error(error);
+
+        } finally {
+
+            setLoading(false);
         }
-
-        if (search.model.trim() !== "") {
-            params.model = search.model;
-        }
-
-        if (search.category.trim() !== "") {
-            params.category = search.category;
-        }
-
-        const data = await searchVehicles(params);
-
-        setVehicles(data.content);
-        setTotalPages(data.totalPages);
-
-    } catch (error) {
-
-        setError("Failed to load vehicles.");
-        console.error(error);
-
-    } finally {
-
-        setLoading(false);
-    }
-};
+    };
 
     const handleSearch = () => {
 
         setPage(0);
 
         loadVehicles();
+    };
+
+    const handlePurchase = async (id) => {
+
+        const confirmed = window.confirm(
+            "Purchase this vehicle?"
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+
+            await purchaseVehicle(id, 1);
+
+            await loadVehicles();
+
+            alert("Purchase successful.");
+
+        } catch (error) {
+
+            alert(
+                error.response?.data?.message ||
+                "Purchase failed."
+            );
+        }
     };
 
     const handleDelete = async (id) => {
@@ -176,6 +204,14 @@ export default function VehicleList() {
                         <p>{vehicle.model}</p>
 
                         <p>{vehicle.price}</p>
+
+                        <p>Available: {vehicle.quantity}</p>
+
+                        <button
+                            onClick={() => handlePurchase(vehicle.id)}
+                        >
+                            Purchase
+                        </button>
 
                         <Link to={`/vehicles/edit/${vehicle.id}`}>
                             <button>Edit</button>
