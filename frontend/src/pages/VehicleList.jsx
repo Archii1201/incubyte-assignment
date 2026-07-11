@@ -208,9 +208,12 @@ export default function VehicleList() {
                         <p>Available: {vehicle.quantity}</p>
 
                         <button
+                            disabled={vehicle.quantity === 0}
                             onClick={() => handlePurchase(vehicle.id)}
                         >
-                            Purchase
+                            {vehicle.quantity === 0
+                                ? "Out of Stock"
+                                : "Purchase"}
                         </button>
 
                         <Link to={`/vehicles/edit/${vehicle.id}`}>
