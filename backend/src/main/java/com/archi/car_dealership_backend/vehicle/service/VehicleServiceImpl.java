@@ -27,6 +27,7 @@ public class VehicleServiceImpl implements VehicleService {
 
         return VehicleMapper.toResponse(savedVehicle);
     }
+    @Override
     public List<VehicleResponse> listVehicles() {
 
         return vehicleRepository.findAll()
@@ -34,4 +35,5 @@ public class VehicleServiceImpl implements VehicleService {
                 .map(VehicleMapper::toResponse)
                 .toList();
     }
+
 }

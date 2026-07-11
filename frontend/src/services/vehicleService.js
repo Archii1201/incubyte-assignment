@@ -9,3 +9,10 @@ export const createVehicle = async (vehicle) => {
 
     return response.data;
 };
+export const getVehicles = async () => {
+
+    const response =
+        await api.get("/vehicles");
+
+    return response.data;
+};

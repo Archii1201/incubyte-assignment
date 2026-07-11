@@ -5,7 +5,7 @@ import Register from "../pages/Register";
 import Dashboard from "../pages/Dashboard";
 import ProtectedRoute from "../components/ProtectedRoute";
 import AddVehicle from "../pages/AddVehicle";
-
+import VehicleList from "../pages/VehicleList";
 export default function AppRoutes() {
 
     return (
@@ -38,6 +38,21 @@ export default function AppRoutes() {
                     </ProtectedRoute>
                 }
             />
+            <Route
+
+            path="/vehicles"
+
+            element={
+
+                <ProtectedRoute>
+
+                    <VehicleList />
+
+                </ProtectedRoute>
+
+            }
+
+        />
 
         </Routes>
 

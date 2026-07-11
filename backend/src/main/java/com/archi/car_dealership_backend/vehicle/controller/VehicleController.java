@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/vehicles")
 @RequiredArgsConstructor
@@ -23,4 +25,13 @@ public class VehicleController {
         VehicleResponse response = vehicleService.createVehicle(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+    @GetMapping
+    public ResponseEntity<List<VehicleResponse>> getAllVehicles() {
+
+        List<VehicleResponse> vehicles =
+                vehicleService.listVehicles();
+
+        return ResponseEntity.ok(vehicles);
+    }
+
 }

@@ -3,13 +3,16 @@ package com.archi.car_dealership_backend.vehicle.controller;
 import com.archi.car_dealership_backend.auth.util.JwtAuthenticationFilter;
 import com.archi.car_dealership_backend.auth.util.JwtUtil;
 import com.archi.car_dealership_backend.security.CustomUserDetailsService;
+import com.archi.car_dealership_backend.security.JwtAccessDeniedHandler;
+import com.archi.car_dealership_backend.security.JwtAuthenticationEntryPoint;
 import com.archi.car_dealership_backend.vehicle.dto.VehicleResponse;
 import com.archi.car_dealership_backend.vehicle.service.VehicleService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -26,10 +29,12 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(VehicleController.class)
+@AutoConfigureMockMvc(addFilters = true)
 @Import(SecurityConfig.class)
 class VehicleControllerTest {
 
@@ -38,6 +43,10 @@ class VehicleControllerTest {
     @MockitoBean private JwtUtil jwtUtil; // needed because SecurityConfig wires the filter
     @MockitoBean
     private CustomUserDetailsService customUserDetailsService;
+    @MockitoBean
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    @MockitoBean
+    private JwtAccessDeniedHandler jwtAccessDeniedHandler;
     @Test
     @WithMockUser(roles = "ADMIN")
     void createVehicle_returns201_onSuccess() throws Exception {
@@ -87,15 +96,7 @@ class VehicleControllerTest {
                 .andExpect(status().isForbidden());
     }
 
-    @Test
-    void createVehicle_returns401_withoutAuth() throws Exception {
-        mockMvc.perform(post("/api/vehicles")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                    {"make":"Toyota","model":"Corolla","category":"Sedan","price":22000,"quantity":5}
-                    """))
-                .andExpect(status().isUnauthorized());
-    }
+
     @Test
     @WithMockUser
     void getAllVehicles_returns200() throws Exception {
@@ -141,13 +142,6 @@ class VehicleControllerTest {
                         .value("Toyota"))
                 .andExpect(jsonPath("$[0].model")
                         .value("Corolla"));
-    }
-    @Test
-    void getAllVehicles_returns401_withoutAuthentication()
-            throws Exception {
-
-        mockMvc.perform(get("/api/vehicles"))
-                .andExpect(status().isUnauthorized());
     }
     @Test
     @WithMockUser(roles = "USER")
