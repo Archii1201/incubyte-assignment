@@ -16,3 +16,12 @@ export const getVehicles = async () => {
 
     return response.data;
 };
+export const updateVehicle = async (id, vehicle) => {
+    const response = await api.put(`/vehicles/${id}`, vehicle);
+    return response.data;
+};
+
+export const getVehicleById = async (id) => {
+    const response = await api.get(`/vehicles/${id}`);
+    return response.data;
+};

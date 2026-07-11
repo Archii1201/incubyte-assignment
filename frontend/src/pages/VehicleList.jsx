@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getVehicles } from "../services/vehicleService";
-
+import { Link } from "react-router-dom";
 export default function VehicleList() {
 
     const [vehicles, setVehicles] = useState([]);
@@ -60,7 +60,9 @@ export default function VehicleList() {
                     <p>{vehicle.make}</p>
                     <p>{vehicle.model}</p>
                     <p>{vehicle.price}</p>
-
+                    <Link to={`/vehicles/edit/${vehicle.id}`}>
+                        <button>Edit</button>
+                    </Link>
                 </div>
 
             ))}

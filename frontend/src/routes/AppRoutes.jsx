@@ -6,6 +6,7 @@ import Dashboard from "../pages/Dashboard";
 import ProtectedRoute from "../components/ProtectedRoute";
 import AddVehicle from "../pages/AddVehicle";
 import VehicleList from "../pages/VehicleList";
+import EditVehicle from "../pages/EditVehicle";
 export default function AppRoutes() {
 
     return (
@@ -52,6 +53,14 @@ export default function AppRoutes() {
 
             }
 
+        />
+        <Route
+            path="/vehicles/edit/:id"
+            element={
+                <ProtectedRoute>
+                    <EditVehicle />
+                </ProtectedRoute>
+            }
         />
 
         </Routes>
