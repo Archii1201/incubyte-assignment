@@ -10,4 +10,13 @@ public interface InventoryService {
             String email
     );
 
+
+
+
+    void restockVehicle(
+            UUID vehicleId,
+            int quantity,
+            String email
+    );
+
 }

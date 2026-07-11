@@ -58,4 +58,39 @@ public class InventoryServiceImpl implements InventoryService {
 
         transactionRepository.save(transaction);
     }
+    @Override
+    public void restockVehicle(
+            UUID vehicleId,
+            int quantity,
+            String email
+    ) {
+
+        Vehicle vehicle = vehicleRepository.findById(vehicleId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Vehicle not found"));
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+
+        vehicle.setQuantity(
+                vehicle.getQuantity() + quantity
+        );
+
+        if (vehicle.getStatus() != VehicleStatus.ACTIVE) {
+            vehicle.setStatus(VehicleStatus.ACTIVE);
+        }
+
+        vehicleRepository.save(vehicle);
+
+        InventoryTransaction transaction =
+                InventoryTransaction.builder()
+                        .vehicle(vehicle)
+                        .performedBy(user)
+                        .type(TransactionType.RESTOCK)
+                        .quantityChange(quantity)
+                        .build();
+
+        transactionRepository.save(transaction);
+    }
 }
