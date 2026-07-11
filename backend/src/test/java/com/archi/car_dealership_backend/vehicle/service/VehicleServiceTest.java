@@ -27,7 +27,7 @@ class VehicleServiceTest {
     private VehicleRepository vehicleRepository;
 
     @InjectMocks
-    private VehicleService vehicleService;
+    private VehicleServiceImpl vehicleService;
 
     @Test
     void createVehicle_success_returnsResponseWithActiveStatus() {
