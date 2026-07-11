@@ -16,6 +16,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -79,5 +81,29 @@ class VehicleRepositoryTest {
         assertThat(page.getContent()).hasSize(10);
         assertThat(page.getTotalElements()).isEqualTo(15);
         assertThat(page.hasNext()).isTrue();
+    }
+    @Test
+    void update_existingVehicle_succeeds() {
+        Vehicle vehicle = Vehicle.builder()
+                .make("Toyota").model("Corolla").category("Sedan")
+                .price(new BigDecimal("22000")).quantity(5)
+                .status(VehicleStatus.ACTIVE)
+                .build();
+        Vehicle saved = vehicleRepository.save(vehicle);
+
+        saved.setPrice(new BigDecimal("21500"));
+        saved.setQuantity(4);
+        Vehicle updated = vehicleRepository.save(saved);
+
+        Optional<Vehicle> fetched = vehicleRepository.findById(updated.getId());
+        assertThat(fetched).isPresent();
+        assertThat(fetched.get().getPrice()).isEqualTo(new BigDecimal("21500"));
+        assertThat(fetched.get().getQuantity()).isEqualTo(4);
+    }
+
+    @Test
+    void findById_returnsEmpty_whenVehicleNotFound() {
+        Optional<Vehicle> result = vehicleRepository.findById(UUID.randomUUID());
+        assertThat(result).isEmpty();
     }
 }
