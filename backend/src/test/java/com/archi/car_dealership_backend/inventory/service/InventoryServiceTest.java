@@ -38,7 +38,8 @@ class InventoryServiceTest {
     void purchaseVehicle_success() {
 
         UUID vehicleId = UUID.randomUUID();
-        UUID userId = UUID.randomUUID();
+
+        String email = "archi@test.com";
 
         Vehicle vehicle = Vehicle.builder()
                 .id(vehicleId)
@@ -49,20 +50,25 @@ class InventoryServiceTest {
                 .build();
 
         User user = User.builder()
-                .id(userId)
+                .id(UUID.randomUUID())
                 .name("archi")
+                .email(email)
                 .build();
 
         when(vehicleRepository.findById(vehicleId))
                 .thenReturn(Optional.of(vehicle));
 
-        when(userRepository.findById(userId))
+        when(userRepository.findByEmail(email))
                 .thenReturn(Optional.of(user));
 
         when(vehicleRepository.save(any()))
                 .thenAnswer(inv -> inv.getArgument(0));
 
-        inventoryService.purchaseVehicle(vehicleId, 2, userId);
+        inventoryService.purchaseVehicle(
+                vehicleId,
+                2,
+                email
+        );
 
         assertThat(vehicle.getQuantity())
                 .isEqualTo(3);
@@ -83,16 +89,18 @@ class InventoryServiceTest {
                 inventoryService.purchaseVehicle(
                         vehicleId,
                         1,
-                        UUID.randomUUID()
+                        "archi@test.com"
                 ))
-                .isInstanceOf(ResourceNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Vehicle not found");
     }
 
     @Test
     void purchaseVehicle_userNotFound() {
 
         UUID vehicleId = UUID.randomUUID();
-        UUID userId = UUID.randomUUID();
+
+        String email = "archi@test.com";
 
         Vehicle vehicle = Vehicle.builder()
                 .id(vehicleId)
@@ -103,23 +111,25 @@ class InventoryServiceTest {
         when(vehicleRepository.findById(vehicleId))
                 .thenReturn(Optional.of(vehicle));
 
-        when(userRepository.findById(userId))
+        when(userRepository.findByEmail(email))
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() ->
                 inventoryService.purchaseVehicle(
                         vehicleId,
                         1,
-                        userId
+                        email
                 ))
-                .isInstanceOf(ResourceNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("User not found");
     }
 
     @Test
     void purchaseVehicle_notEnoughStock() {
 
         UUID vehicleId = UUID.randomUUID();
-        UUID userId = UUID.randomUUID();
+
+        String email = "archi@test.com";
 
         Vehicle vehicle = Vehicle.builder()
                 .id(vehicleId)
@@ -128,21 +138,29 @@ class InventoryServiceTest {
                 .build();
 
         User user = User.builder()
-                .id(userId)
+                .id(UUID.randomUUID())
+                .email(email)
                 .build();
 
         when(vehicleRepository.findById(vehicleId))
                 .thenReturn(Optional.of(vehicle));
 
-        when(userRepository.findById(userId))
+        when(userRepository.findByEmail(email))
                 .thenReturn(Optional.of(user));
 
         assertThatThrownBy(() ->
                 inventoryService.purchaseVehicle(
                         vehicleId,
                         5,
-                        userId
+                        email
                 ))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Insufficient stock");
+
+        verify(transactionRepository, never())
+                .save(any());
+
+        verify(vehicleRepository, never())
+                .save(any());
     }
 }

@@ -7,7 +7,7 @@ public interface InventoryService {
     void purchaseVehicle(
             UUID vehicleId,
             int quantity,
-            UUID userId
+            String email
     );
 
 }

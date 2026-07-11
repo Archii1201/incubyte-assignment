@@ -21,11 +21,9 @@ public class InventoryServiceImpl implements InventoryService {
     private final InventoryTransactionRepository transactionRepository;
 
     @Override
-    public void purchaseVehicle(
-            UUID vehicleId,
-            int quantity,
-            UUID userId
-    ) {
+    public void purchaseVehicle(UUID vehicleId,
+                                int quantity,
+                                String email){
 
         Vehicle vehicle =
                 vehicleRepository.findById(vehicleId)
@@ -34,12 +32,9 @@ public class InventoryServiceImpl implements InventoryService {
                                         "Vehicle not found"
                                 ));
 
-        User user =
-                userRepository.findById(userId)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "User not found"
-                                ));
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
 
         if (vehicle.getQuantity() < quantity) {
             throw new IllegalArgumentException(

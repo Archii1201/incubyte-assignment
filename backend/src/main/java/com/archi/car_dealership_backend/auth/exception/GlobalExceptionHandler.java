@@ -7,6 +7,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
@@ -58,7 +59,19 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
         return build(HttpStatus.FORBIDDEN, "Access denied");
     }
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<ErrorResponse> handleValidation(
+            HandlerMethodValidationException ex) {
 
+        ErrorResponse error = new ErrorResponse(
+                400,
+                "Bad Request",
+                "Validation failed",
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.badRequest().body(error);
+    }
     private ResponseEntity<ErrorResponse> build(HttpStatus status, String message) {
         return ResponseEntity.status(status).body(
                 new ErrorResponse(status.value(), status.getReasonPhrase(), message, LocalDateTime.now())
