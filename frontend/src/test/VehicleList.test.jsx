@@ -3,10 +3,14 @@ import { BrowserRouter } from "react-router-dom";
 import { describe, test, expect, vi, beforeEach } from "vitest";
 
 import VehicleList from "../pages/VehicleList";
-import { getVehicles } from "../services/vehicleService";
+import {
+    searchVehicles,
+    deleteVehicle,
+} from "../services/vehicleService";
 
 vi.mock("../services/vehicleService", () => ({
-    getVehicles: vi.fn(),
+    searchVehicles: vi.fn(),
+    deleteVehicle: vi.fn(),
 }));
 
 describe("VehicleList", () => {
@@ -17,7 +21,9 @@ describe("VehicleList", () => {
 
     test("shows loading state", () => {
 
-        getVehicles.mockImplementation(() => new Promise(() => {}));
+        searchVehicles.mockImplementation(
+            () => new Promise(() => {})
+        );
 
         render(
             <BrowserRouter>
@@ -32,7 +38,10 @@ describe("VehicleList", () => {
 
     test("shows empty state", async () => {
 
-        getVehicles.mockResolvedValue([]);
+        searchVehicles.mockResolvedValue({
+            content: [],
+            totalPages: 0,
+        });
 
         render(
             <BrowserRouter>
@@ -47,14 +56,18 @@ describe("VehicleList", () => {
 
     test("renders vehicle list", async () => {
 
-        getVehicles.mockResolvedValue([
-            {
-                id: "1",
-                make: "Toyota",
-                model: "Corolla",
-                price: 22000,
-            },
-        ]);
+        searchVehicles.mockResolvedValue({
+            content: [
+                {
+                    id: "1",
+                    make: "Toyota",
+                    model: "Corolla",
+                    category: "Sedan",
+                    price: 22000,
+                },
+            ],
+            totalPages: 1,
+        });
 
         render(
             <BrowserRouter>
@@ -73,7 +86,7 @@ describe("VehicleList", () => {
 
     test("shows error message", async () => {
 
-        getVehicles.mockRejectedValue(
+        searchVehicles.mockRejectedValue(
             new Error("Server error")
         );
 
@@ -87,4 +100,41 @@ describe("VehicleList", () => {
             await screen.findByText(/failed to load vehicles/i)
         ).toBeInTheDocument();
     });
+
+    test("renders pagination buttons", async () => {
+
+        searchVehicles.mockResolvedValue({
+            content: [
+                {
+                    id: "1",
+                    make: "Toyota",
+                    model: "Corolla",
+                    category: "Sedan",
+                    price: 22000,
+                },
+            ],
+            totalPages: 3,
+        });
+
+        render(
+            <BrowserRouter>
+                <VehicleList />
+            </BrowserRouter>
+        );
+
+        await screen.findByText("Toyota");
+
+        expect(
+            screen.getByRole("button", {
+                name: /previous/i,
+            })
+        ).toBeInTheDocument();
+
+        expect(
+            screen.getByRole("button", {
+                name: /next/i,
+            })
+        ).toBeInTheDocument();
+    });
+
 });

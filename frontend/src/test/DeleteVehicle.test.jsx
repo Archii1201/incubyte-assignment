@@ -1,30 +1,41 @@
 import { describe, test, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import VehicleList from "../pages/VehicleList";
-import * as vehicleService from "../services/vehicleService";
 
-vi.mock("../services/vehicleService");
+import VehicleList from "../pages/VehicleList";
+import {
+    searchVehicles,
+    deleteVehicle,
+} from "../services/vehicleService";
+
+vi.mock("../services/vehicleService", () => ({
+    searchVehicles: vi.fn(),
+    deleteVehicle: vi.fn(),
+}));
 
 describe("Delete Vehicle", () => {
 
     beforeEach(() => {
-
         vi.clearAllMocks();
-
         localStorage.setItem("role", "ADMIN");
     });
 
-    test("shows delete button for admin", async () => {
-
-        vehicleService.getVehicles.mockResolvedValue([
+    const pageResponse = {
+        content: [
             {
                 id: "1",
                 make: "Toyota",
                 model: "Corolla",
-                price: 22000
-            }
-        ]);
+                category: "Sedan",
+                price: 22000,
+            },
+        ],
+        totalPages: 1,
+    };
+
+    test("shows delete button for admin", async () => {
+
+        searchVehicles.mockResolvedValue(pageResponse);
 
         render(
             <MemoryRouter>
@@ -32,23 +43,15 @@ describe("Delete Vehicle", () => {
             </MemoryRouter>
         );
 
-        expect(
-            await screen.findByText("Delete")
-        ).toBeInTheDocument();
+        expect(await screen.findByText("Delete"))
+            .toBeInTheDocument();
     });
 
     test("clicking delete opens confirmation", async () => {
 
         window.confirm = vi.fn(() => false);
 
-        vehicleService.getVehicles.mockResolvedValue([
-            {
-                id: "1",
-                make: "Toyota",
-                model: "Corolla",
-                price: 22000
-            }
-        ]);
+        searchVehicles.mockResolvedValue(pageResponse);
 
         render(
             <MemoryRouter>
@@ -56,9 +59,7 @@ describe("Delete Vehicle", () => {
             </MemoryRouter>
         );
 
-        fireEvent.click(
-            await screen.findByText("Delete")
-        );
+        fireEvent.click(await screen.findByText("Delete"));
 
         expect(window.confirm).toHaveBeenCalled();
     });
@@ -67,16 +68,9 @@ describe("Delete Vehicle", () => {
 
         window.confirm = vi.fn(() => true);
 
-        vehicleService.getVehicles.mockResolvedValue([
-            {
-                id: "1",
-                make: "Toyota",
-                model: "Corolla",
-                price: 22000
-            }
-        ]);
+        searchVehicles.mockResolvedValue(pageResponse);
 
-        vehicleService.deleteVehicle.mockResolvedValue();
+        deleteVehicle.mockResolvedValue();
 
         render(
             <MemoryRouter>
@@ -84,31 +78,24 @@ describe("Delete Vehicle", () => {
             </MemoryRouter>
         );
 
-        fireEvent.click(
-            await screen.findByText("Delete")
-        );
+        fireEvent.click(await screen.findByText("Delete"));
 
         await waitFor(() => {
 
-            expect(vehicleService.deleteVehicle)
-                    .toHaveBeenCalledWith("1");
+            expect(deleteVehicle)
+                .toHaveBeenCalledWith("1");
+
         });
+
     });
 
     test("reloads vehicles after delete", async () => {
 
         window.confirm = vi.fn(() => true);
 
-        vehicleService.getVehicles.mockResolvedValue([
-            {
-                id: "1",
-                make: "Toyota",
-                model: "Corolla",
-                price: 22000
-            }
-        ]);
+        searchVehicles.mockResolvedValue(pageResponse);
 
-        vehicleService.deleteVehicle.mockResolvedValue();
+        deleteVehicle.mockResolvedValue();
 
         render(
             <MemoryRouter>
@@ -116,15 +103,15 @@ describe("Delete Vehicle", () => {
             </MemoryRouter>
         );
 
-        fireEvent.click(
-            await screen.findByText("Delete")
-        );
+        fireEvent.click(await screen.findByText("Delete"));
 
         await waitFor(() => {
 
-            expect(vehicleService.getVehicles)
-                    .toHaveBeenCalledTimes(2);
+            expect(searchVehicles)
+                .toHaveBeenCalledTimes(2);
+
         });
+
     });
 
 });
