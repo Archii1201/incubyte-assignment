@@ -1,65 +1,110 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 import {
-    getVehicles,
-    deleteVehicle
+    searchVehicles,
+    deleteVehicle,
 } from "../services/vehicleService";
-import { Link } from "react-router-dom";
+
 export default function VehicleList() {
 
     const [vehicles, setVehicles] = useState([]);
+
     const [loading, setLoading] = useState(true);
+
     const [error, setError] = useState("");
+
+    const [search, setSearch] = useState({
+        make: "",
+        model: "",
+        category: "",
+    });
+
+    const [page, setPage] = useState(0);
+
+    const [size] = useState(5);
+
+    const [totalPages, setTotalPages] = useState(0);
+
     const role = localStorage.getItem("role");
+
     useEffect(() => {
         loadVehicles();
-    }, []);
+    }, [page]);
 
     const loadVehicles = async () => {
 
-        try {
-
-            const data = await getVehicles();
-
-            setVehicles(data);
-
-        } catch (error) {
-
-            setError("Failed to load vehicles.");
-
-            console.error(error);
-
-        } finally {
-
-            setLoading(false);
-        }
-    };
-    const handleDelete = async (id) => {
-
-    const confirmed = window.confirm(
-        "Are you sure you want to delete this vehicle?"
-    );
-
-    if (!confirmed) {
-        return;
-    }
+    setLoading(true);
+    setError("");
 
     try {
 
-        await deleteVehicle(id);
+        const params = {
+            page,
+            size,
+        };
 
-        await loadVehicles();
+        if (search.make.trim() !== "") {
+            params.make = search.make;
+        }
 
-        alert("Vehicle deleted successfully.");
+        if (search.model.trim() !== "") {
+            params.model = search.model;
+        }
+
+        if (search.category.trim() !== "") {
+            params.category = search.category;
+        }
+
+        const data = await searchVehicles(params);
+
+        setVehicles(data.content);
+        setTotalPages(data.totalPages);
 
     } catch (error) {
 
-        alert(
-            error.response?.data?.message ||
-            "Failed to delete vehicle."
-        );
+        setError("Failed to load vehicles.");
+        console.error(error);
+
+    } finally {
+
+        setLoading(false);
     }
 };
+
+    const handleSearch = () => {
+
+        setPage(0);
+
+        loadVehicles();
+    };
+
+    const handleDelete = async (id) => {
+
+        const confirmed = window.confirm(
+            "Are you sure you want to delete this vehicle?"
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+
+            await deleteVehicle(id);
+
+            await loadVehicles();
+
+            alert("Vehicle deleted successfully.");
+
+        } catch (error) {
+
+            alert(
+                error.response?.data?.message ||
+                "Failed to delete vehicle."
+            );
+        }
+    };
 
     if (loading) {
         return <h2>Loading vehicles...</h2>;
@@ -69,41 +114,104 @@ export default function VehicleList() {
         return <h2>{error}</h2>;
     }
 
-    if (vehicles.length === 0) {
-        return (
-            <div>
-                <h2>Vehicle Inventory</h2>
-                <p>No vehicles found.</p>
-            </div>
-        );
-    }
-
     return (
+
         <div>
 
             <h1>Vehicle Inventory</h1>
 
-            {vehicles.map(vehicle => (
+            <div>
 
-                <div key={vehicle.id}>
+                <input
+                    placeholder="Make"
+                    value={search.make}
+                    onChange={(e) =>
+                        setSearch({
+                            ...search,
+                            make: e.target.value,
+                        })
+                    }
+                />
 
-                    <p>{vehicle.make}</p>
-                    <p>{vehicle.model}</p>
-                    <p>{vehicle.price}</p>
-                    <Link to={`/vehicles/edit/${vehicle.id}`}>
-                        <button>Edit</button>
-                    </Link>
-                    {role === "ADMIN" && (
+                <input
+                    placeholder="Model"
+                    value={search.model}
+                    onChange={(e) =>
+                        setSearch({
+                            ...search,
+                            model: e.target.value,
+                        })
+                    }
+                />
+
+                <input
+                    placeholder="Category"
+                    value={search.category}
+                    onChange={(e) =>
+                        setSearch({
+                            ...search,
+                            category: e.target.value,
+                        })
+                    }
+                />
+
+                <button onClick={handleSearch}>
+                    Search
+                </button>
+
+            </div>
+
+            {vehicles.length === 0 ? (
+
+                <p>No vehicles found.</p>
+
+            ) : (
+
+                vehicles.map(vehicle => (
+
+                    <div key={vehicle.id}>
+
+                        <p>{vehicle.make}</p>
+
+                        <p>{vehicle.model}</p>
+
+                        <p>{vehicle.price}</p>
+
+                        <Link to={`/vehicles/edit/${vehicle.id}`}>
+                            <button>Edit</button>
+                        </Link>
+
+                        {role === "ADMIN" && (
+
                             <button
                                 onClick={() => handleDelete(vehicle.id)}
                             >
                                 Delete
                             </button>
 
-                    )}
-                </div>
+                        )}
 
-            ))}
+                    </div>
+
+                ))
+
+            )}
+
+            <br />
+
+            <button
+                disabled={page === 0}
+                onClick={() => setPage(page - 1)}
+            >
+                Previous
+            </button>
+
+            <button
+                disabled={page >= totalPages - 1}
+                onClick={() => setPage(page + 1)}
+            >
+                Next
+            </button>
 
         </div>
     );

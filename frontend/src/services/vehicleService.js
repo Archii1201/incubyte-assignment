@@ -29,3 +29,14 @@ export const deleteVehicle = async (id) => {
 
     await api.delete(`/vehicles/${id}`);
 };
+export const searchVehicles = async (params) => {
+
+    const response = await api.get(
+        "/vehicles/search",
+        {
+            params,
+        }
+    );
+
+    return response.data;
+};
