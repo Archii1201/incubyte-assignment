@@ -20,7 +20,7 @@ class JwtUtilTest {
 
     @Test
     void isTokenValid_returnsFalse_forExpiredToken() {
-        JwtUtil shortLived = new JwtUtil("test-secret-key-must-be-long-enough-for-hs256", -1000);
+        JwtUtil shortLived = new JwtUtil("thisIsMySuperSecretJwtKeyForCarDealership2026Secure", -1000);
         User user = User.builder().email("archi@test.com").role(Role.USER).build();
         String token = shortLived.generateToken(user);
 

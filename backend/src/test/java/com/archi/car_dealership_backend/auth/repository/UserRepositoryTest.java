@@ -1,7 +1,8 @@
-package com.archi.car_dealership_backend.repository;
+package com.archi.car_dealership_backend.auth.repository;
 
 import com.archi.car_dealership_backend.entity.Role;
 import com.archi.car_dealership_backend.entity.User;
+import com.archi.car_dealership_backend.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;

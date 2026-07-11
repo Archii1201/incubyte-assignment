@@ -1,5 +1,8 @@
-package com.archi.car_dealership_backend.repository;
+package com.archi.car_dealership_backend.vehicle.repository;
 
+import com.archi.car_dealership_backend.entity.Vehicle;
+import com.archi.car_dealership_backend.entity.VehicleStatus;
+import com.archi.car_dealership_backend.repository.VehicleRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -8,6 +11,10 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
+import java.math.BigDecimal;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @DataJpaTest
 @Testcontainers
