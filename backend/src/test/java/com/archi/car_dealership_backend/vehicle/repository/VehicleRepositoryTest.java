@@ -6,6 +6,7 @@ import com.archi.car_dealership_backend.repository.VehicleRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -13,6 +14,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -45,5 +47,36 @@ class VehicleRepositoryTest {
 
         assertThat(saved.getId()).isNotNull();
         assertThat(vehicleRepository.findById(saved.getId())).isPresent();
+    }
+    @Test
+    void findAll_returnsAllVehicles() {
+        Vehicle v1 = Vehicle.builder().make("Toyota").model("Corolla")
+                .category("Sedan").price(new BigDecimal("22000")).quantity(5)
+                .status(VehicleStatus.ACTIVE).build();
+        Vehicle v2 = Vehicle.builder().make("Honda").model("Civic")
+                .category("Sedan").price(new BigDecimal("24000")).quantity(3)
+                .status(VehicleStatus.ACTIVE).build();
+
+        vehicleRepository.saveAll(List.of(v1, v2));
+
+        List<Vehicle> all = vehicleRepository.findAll();
+        assertThat(all).hasSize(2);
+    }
+
+    @Test
+    void findAll_withPagination_returnsPagedResults() {
+        // Save 15 vehicles
+        for (int i = 0; i < 15; i++) {
+            vehicleRepository.save(Vehicle.builder()
+                    .make("Make" + i).model("Model" + i)
+                    .category("Category").price(new BigDecimal("20000"))
+                    .quantity(i).status(VehicleStatus.ACTIVE).build());
+        }
+
+        Page<Vehicle> page = vehicleRepository.findAll(PageRequest.of(0, 10));
+
+        assertThat(page.getContent()).hasSize(10);
+        assertThat(page.getTotalElements()).isEqualTo(15);
+        assertThat(page.hasNext()).isTrue();
     }
 }
