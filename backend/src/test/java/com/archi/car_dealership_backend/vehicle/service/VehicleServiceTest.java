@@ -246,4 +246,26 @@ class VehicleServiceTest {
         verify(vehicleRepository)
                 .save(vehicle);
     }
+    @Test
+    void listVehicles_returnsOnlyActiveVehicles() {
+
+        Vehicle active =
+                Vehicle.builder()
+                        .id(UUID.randomUUID())
+                        .make("Toyota")
+                        .status(VehicleStatus.ACTIVE)
+                        .build();
+
+        when(vehicleRepository.findByStatus(VehicleStatus.ACTIVE))
+                .thenReturn(List.of(active));
+
+        List<VehicleResponse> result =
+                vehicleService.listVehicles();
+
+        assertEquals(1, result.size());
+        assertEquals("Toyota", result.get(0).make());
+
+        verify(vehicleRepository)
+                .findByStatus(VehicleStatus.ACTIVE);
+    }
 }

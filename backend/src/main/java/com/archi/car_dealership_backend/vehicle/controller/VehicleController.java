@@ -62,5 +62,16 @@ public class VehicleController {
 
         return ResponseEntity.ok(response);
     }
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteVehicle(
 
+            @PathVariable
+            UUID id
+    ) {
+
+        vehicleService.deleteVehicle(id);
+
+        return ResponseEntity.noContent().build();
+    }
 }

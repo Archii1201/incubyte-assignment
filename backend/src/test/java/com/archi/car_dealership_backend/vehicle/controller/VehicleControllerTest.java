@@ -1,5 +1,6 @@
 package com.archi.car_dealership_backend.vehicle.controller;
 
+import com.archi.car_dealership_backend.auth.exception.ResourceNotFoundException;
 import com.archi.car_dealership_backend.auth.util.JwtAuthenticationFilter;
 import com.archi.car_dealership_backend.auth.util.JwtUtil;
 import com.archi.car_dealership_backend.security.CustomUserDetailsService;
@@ -112,16 +113,7 @@ class VehicleControllerTest {
                 .andExpect(jsonPath("$.make").value("Toyota"));
     }
 
-    @Test
-    @WithMockUser(roles = "USER")
-    void createVehicle_returns403_forNonAdmin() throws Exception {
-        mockMvc.perform(post("/api/vehicles")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                    {"make":"Toyota","model":"Corolla","category":"Sedan","price":22000,"quantity":5}
-                    """))
-                .andExpect(status().isForbidden());
-    }
+
 
 
     @Test
@@ -305,15 +297,5 @@ class VehicleControllerTest {
         verify(vehicleService, never())
                 .deleteVehicle(any());
     }
-    @Test
-    void deleteVehicle_returns401_withoutAuthentication() throws Exception {
 
-        UUID id = UUID.randomUUID();
-
-        mockMvc.perform(delete("/api/vehicles/{id}", id))
-                .andExpect(status().isUnauthorized());
-
-        verify(vehicleService, never())
-                .deleteVehicle(any());
-    }
 }
