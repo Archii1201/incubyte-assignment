@@ -3,6 +3,7 @@ package com.archi.car_dealership_backend.auth.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -13,11 +14,28 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleUnexpected(Exception ex) {
+
+        return build(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Unexpected internal server error"
+        );
+    }
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
         return build(HttpStatus.NOT_FOUND, ex.getMessage());
     }
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleBadCredentials(
+            BadCredentialsException ex
+    ) {
 
+        return build(
+                HttpStatus.UNAUTHORIZED,
+                "Invalid email or password"
+        );
+    }
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<ErrorResponse> handleDuplicate(DuplicateResourceException ex) {
         return build(HttpStatus.CONFLICT, ex.getMessage());
