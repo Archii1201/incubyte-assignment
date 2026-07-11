@@ -6,11 +6,15 @@ import com.archi.car_dealership_backend.entity.VehicleStatus;
 import com.archi.car_dealership_backend.repository.VehicleRepository;
 import com.archi.car_dealership_backend.vehicle.dto.VehicleRequest;
 import com.archi.car_dealership_backend.vehicle.dto.VehicleResponse;
+import com.archi.car_dealership_backend.vehicle.dto.VehicleSearchRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -26,7 +30,7 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
-
+import org.springframework.data.domain.Pageable;
 @ExtendWith(MockitoExtension.class)
 class VehicleServiceTest {
 

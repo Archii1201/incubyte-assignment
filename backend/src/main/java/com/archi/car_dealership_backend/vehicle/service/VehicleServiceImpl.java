@@ -4,10 +4,16 @@ import com.archi.car_dealership_backend.auth.exception.ResourceNotFoundException
 import com.archi.car_dealership_backend.entity.Vehicle;
 import com.archi.car_dealership_backend.entity.VehicleStatus;
 import com.archi.car_dealership_backend.repository.VehicleRepository;
+import com.archi.car_dealership_backend.repository.VehicleSpecification;
 import com.archi.car_dealership_backend.vehicle.dto.VehicleRequest;
 import com.archi.car_dealership_backend.vehicle.dto.VehicleResponse;
+import com.archi.car_dealership_backend.vehicle.dto.VehicleSearchRequest;
 import com.archi.car_dealership_backend.vehicle.mapper.VehicleMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -77,5 +83,21 @@ public class VehicleServiceImpl implements VehicleService {
 
         vehicleRepository.save(vehicle);
     }
+    @Override
+    public Page<VehicleResponse> searchVehicles(
+            VehicleSearchRequest request
+    ) {
 
+        Pageable pageable = PageRequest.of(
+                request.page(),
+                request.size()
+        );
+
+        Specification<Vehicle> specification =
+                VehicleSpecification.search(request);
+
+        return vehicleRepository
+                .findAll(specification, pageable)
+                .map(VehicleMapper::toResponse);
+    }
 }
