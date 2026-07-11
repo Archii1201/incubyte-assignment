@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
-import { getVehicles } from "../services/vehicleService";
+
+import {
+    getVehicles,
+    deleteVehicle
+} from "../services/vehicleService";
 import { Link } from "react-router-dom";
 export default function VehicleList() {
 
     const [vehicles, setVehicles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-
+    const role = localStorage.getItem("role");
     useEffect(() => {
         loadVehicles();
     }, []);
@@ -30,6 +34,32 @@ export default function VehicleList() {
             setLoading(false);
         }
     };
+    const handleDelete = async (id) => {
+
+    const confirmed = window.confirm(
+        "Are you sure you want to delete this vehicle?"
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+
+        await deleteVehicle(id);
+
+        await loadVehicles();
+
+        alert("Vehicle deleted successfully.");
+
+    } catch (error) {
+
+        alert(
+            error.response?.data?.message ||
+            "Failed to delete vehicle."
+        );
+    }
+};
 
     if (loading) {
         return <h2>Loading vehicles...</h2>;
@@ -63,6 +93,14 @@ export default function VehicleList() {
                     <Link to={`/vehicles/edit/${vehicle.id}`}>
                         <button>Edit</button>
                     </Link>
+                    {role === "ADMIN" && (
+                            <button
+                                onClick={() => handleDelete(vehicle.id)}
+                            >
+                                Delete
+                            </button>
+
+                    )}
                 </div>
 
             ))}

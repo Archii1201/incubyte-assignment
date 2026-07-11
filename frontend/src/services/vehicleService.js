@@ -25,3 +25,7 @@ export const getVehicleById = async (id) => {
     const response = await api.get(`/vehicles/${id}`);
     return response.data;
 };
+export const deleteVehicle = async (id) => {
+
+    await api.delete(`/vehicles/${id}`);
+};
