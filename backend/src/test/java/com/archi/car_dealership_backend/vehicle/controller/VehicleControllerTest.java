@@ -32,7 +32,8 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
+import static org.mockito.ArgumentMatchers.eq;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 @WebMvcTest(VehicleController.class)
 @AutoConfigureMockMvc(addFilters = true)
 @Import(SecurityConfig.class)
@@ -153,5 +154,77 @@ class VehicleControllerTest {
 
         mockMvc.perform(get("/api/vehicles"))
                 .andExpect(status().isOk());
+    }
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void updateVehicle_returns200_whenSuccessful() throws Exception {
+
+        UUID id = UUID.randomUUID();
+
+        VehicleResponse response = new VehicleResponse(
+                id,
+                "Honda",
+                "City",
+                "Sedan",
+                new BigDecimal("25000"),
+                10,
+                "ACTIVE"
+        );
+
+        when(vehicleService.updateVehicle(eq(id), any()))
+                .thenReturn(response);
+
+        mockMvc.perform(put("/api/vehicles/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                    {
+                      "make":"Honda",
+                      "model":"City",
+                      "category":"Sedan",
+                      "price":25000,
+                      "quantity":10
+                    }
+                    """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.make").value("Honda"))
+                .andExpect(jsonPath("$.model").value("City"));
+    }
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void updateVehicle_returns400_whenPriceNegative() throws Exception {
+
+        UUID id = UUID.randomUUID();
+
+        mockMvc.perform(put("/api/vehicles/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                    {
+                      "make":"Honda",
+                      "model":"City",
+                      "category":"Sedan",
+                      "price":-100,
+                      "quantity":10
+                    }
+                    """))
+                .andExpect(status().isBadRequest());
+    }
+    @Test
+    @WithMockUser(roles = "USER")
+    void updateVehicle_returns403_forUser() throws Exception {
+
+        UUID id = UUID.randomUUID();
+
+        mockMvc.perform(put("/api/vehicles/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                    {
+                      "make":"Honda",
+                      "model":"City",
+                      "category":"Sedan",
+                      "price":25000,
+                      "quantity":10
+                    }
+                    """))
+                .andExpect(status().isForbidden());
     }
 }
