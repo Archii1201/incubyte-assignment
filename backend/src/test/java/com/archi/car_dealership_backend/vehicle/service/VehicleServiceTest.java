@@ -75,7 +75,7 @@ class VehicleServiceTest {
     @Test
     void listVehicles_returnsEmptyList_whenNoVehiclesExist() {
 
-        when(vehicleRepository.findAll())
+        when(vehicleRepository.findByStatus(VehicleStatus.ACTIVE))
                 .thenReturn(Collections.emptyList());
 
         List<VehicleResponse> result =
@@ -107,7 +107,7 @@ class VehicleServiceTest {
                 .status(VehicleStatus.ACTIVE)
                 .build();
 
-        when(vehicleRepository.findAll())
+        when(vehicleRepository.findByStatus(VehicleStatus.ACTIVE))
                 .thenReturn(List.of(vehicle1, vehicle2));
 
         List<VehicleResponse> result =
