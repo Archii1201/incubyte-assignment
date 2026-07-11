@@ -8,6 +8,8 @@ import com.archi.car_dealership_backend.vehicle.mapper.VehicleMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class VehicleServiceImpl implements VehicleService {
@@ -24,5 +26,12 @@ public class VehicleServiceImpl implements VehicleService {
                 vehicleRepository.save(vehicle);
 
         return VehicleMapper.toResponse(savedVehicle);
+    }
+    public List<VehicleResponse> listVehicles() {
+
+        return vehicleRepository.findAll()
+                .stream()
+                .map(VehicleMapper::toResponse)
+                .toList();
     }
 }
