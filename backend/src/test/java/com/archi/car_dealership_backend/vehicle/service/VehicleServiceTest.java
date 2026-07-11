@@ -268,4 +268,92 @@ class VehicleServiceTest {
         verify(vehicleRepository)
                 .findByStatus(VehicleStatus.ACTIVE);
     }
+    @Test
+    void searchVehicles_byMake() {
+
+        Vehicle vehicle = Vehicle.builder()
+                .id(UUID.randomUUID())
+                .make("Toyota")
+                .model("Corolla")
+                .category("Sedan")
+                .price(new BigDecimal("22000"))
+                .quantity(5)
+                .status(VehicleStatus.ACTIVE)
+                .build();
+
+        VehicleSearchRequest request =
+                new VehicleSearchRequest(
+                        "Toyota",
+                        null,
+                        null,
+                        null,
+                        null,
+                        0,
+                        10
+                );
+
+        when(vehicleRepository.findAll(any(Specification.class), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(vehicle)));
+
+        Page<VehicleResponse> result =
+                vehicleService.searchVehicles(request);
+
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().get(0).make())
+                .isEqualTo("Toyota");
+    }
+    @Test
+    void searchVehicles_returnsEmptyPage() {
+
+        VehicleSearchRequest request =
+                new VehicleSearchRequest(
+                        "BMW",
+                        null,
+                        null,
+                        null,
+                        null,
+                        0,
+                        10
+                );
+
+        when(vehicleRepository.findAll(any(Specification.class), any(Pageable.class)))
+                .thenReturn(Page.empty());
+
+        Page<VehicleResponse> result =
+                vehicleService.searchVehicles(request);
+
+        assertThat(result.getContent()).isEmpty();
+    }
+    @Test
+    void searchVehicles_returnsPagedResult() {
+
+        Vehicle vehicle = Vehicle.builder()
+                .id(UUID.randomUUID())
+                .make("Honda")
+                .model("City")
+                .category("Sedan")
+                .price(new BigDecimal("25000"))
+                .quantity(5)
+                .status(VehicleStatus.ACTIVE)
+                .build();
+
+        VehicleSearchRequest request =
+                new VehicleSearchRequest(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        1,
+                        5
+                );
+
+        when(vehicleRepository.findAll(any(Specification.class), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(vehicle)));
+
+        Page<VehicleResponse> result =
+                vehicleService.searchVehicles(request);
+
+        assertThat(result.getContent()).hasSize(1);
+    }
 }
