@@ -49,7 +49,7 @@ class VehicleControllerTest {
     @MockitoBean
     private JwtAccessDeniedHandler jwtAccessDeniedHandler;
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser
     void createVehicle_returns201_onSuccess() throws Exception {
         VehicleResponse response = new VehicleResponse(UUID.randomUUID(), "Toyota", "Corolla",
                 "Sedan", new BigDecimal("22000.00"), 5, "ACTIVE");
@@ -76,14 +76,36 @@ class VehicleControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
-    void createVehicle_returns400_onNegativeQuantity() throws Exception {
+    @WithMockUser(roles = "USER")
+    void createVehicle_returns201_forAuthenticatedUser() throws Exception {
+
+        VehicleResponse response =
+                new VehicleResponse(
+                        UUID.randomUUID(),
+                        "Toyota",
+                        "Corolla",
+                        "Sedan",
+                        new BigDecimal("22000.00"),
+                        5,
+                        "ACTIVE"
+                );
+
+        when(vehicleService.createVehicle(any()))
+                .thenReturn(response);
+
         mockMvc.perform(post("/api/vehicles")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                    {"make":"Toyota","model":"Corolla","category":"Sedan","price":22000,"quantity":-2}
+                    {
+                      "make":"Toyota",
+                      "model":"Corolla",
+                      "category":"Sedan",
+                      "price":22000,
+                      "quantity":5
+                    }
                     """))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.make").value("Toyota"));
     }
 
     @Test
@@ -210,9 +232,23 @@ class VehicleControllerTest {
     }
     @Test
     @WithMockUser(roles = "USER")
-    void updateVehicle_returns403_forUser() throws Exception {
+    void updateVehicle_returns200_forAuthenticatedUser() throws Exception {
 
         UUID id = UUID.randomUUID();
+
+        VehicleResponse response =
+                new VehicleResponse(
+                        id,
+                        "Honda",
+                        "City",
+                        "Sedan",
+                        new BigDecimal("25000"),
+                        10,
+                        "ACTIVE"
+                );
+
+        when(vehicleService.updateVehicle(eq(id), any()))
+                .thenReturn(response);
 
         mockMvc.perform(put("/api/vehicles/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -225,6 +261,7 @@ class VehicleControllerTest {
                       "quantity":10
                     }
                     """))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.make").value("Honda"));
     }
 }

@@ -4,9 +4,12 @@ import com.archi.car_dealership_backend.vehicle.dto.VehicleRequest;
 import com.archi.car_dealership_backend.vehicle.dto.VehicleResponse;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface VehicleService {
 
     VehicleResponse createVehicle(VehicleRequest request);
     public List<VehicleResponse> listVehicles();
+    VehicleResponse getVehicleById(UUID id);
+    VehicleResponse updateVehicle(UUID id, VehicleRequest request);
 }

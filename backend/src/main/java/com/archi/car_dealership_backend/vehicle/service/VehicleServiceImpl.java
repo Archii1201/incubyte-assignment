@@ -37,6 +37,7 @@ public class VehicleServiceImpl implements VehicleService {
                 .map(VehicleMapper::toResponse)
                 .toList();
     }
+    @Override
     public VehicleResponse updateVehicle(UUID id, VehicleRequest request) {
         Vehicle vehicle = vehicleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found with id: " + id));
@@ -50,6 +51,16 @@ public class VehicleServiceImpl implements VehicleService {
 
         Vehicle updated = vehicleRepository.save(vehicle);
         return VehicleMapper.toResponse(updated);
+    }
+    @Override
+    public VehicleResponse getVehicleById(UUID id) {
+
+        Vehicle vehicle = vehicleRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Vehicle not found with id: " + id));
+
+        return VehicleMapper.toResponse(vehicle);
     }
 
 }
