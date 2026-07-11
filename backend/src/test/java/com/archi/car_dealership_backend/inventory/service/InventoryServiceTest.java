@@ -200,4 +200,86 @@ class InventoryServiceTest {
         verify(transactionRepository)
                 .save(any(InventoryTransaction.class));
     }
+    @Test
+    void restockVehicle_vehicleNotFound() {
+
+        UUID vehicleId = UUID.randomUUID();
+
+        when(vehicleRepository.findById(vehicleId))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() ->
+                inventoryService.restockVehicle(
+                        vehicleId,
+                        5,
+                        "admin@test.com"
+                ))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Vehicle not found");
+    }
+    @Test
+    void restockVehicle_userNotFound() {
+
+        UUID vehicleId = UUID.randomUUID();
+
+        Vehicle vehicle = Vehicle.builder()
+                .id(vehicleId)
+                .quantity(5)
+                .status(VehicleStatus.ACTIVE)
+                .build();
+
+        when(vehicleRepository.findById(vehicleId))
+                .thenReturn(Optional.of(vehicle));
+
+        when(userRepository.findByEmail("admin@test.com"))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() ->
+                inventoryService.restockVehicle(
+                        vehicleId,
+                        5,
+                        "admin@test.com"
+                ))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("User not found");
+    }
+    @Test
+    void restockVehicle_createsRestockTransaction() {
+
+        UUID vehicleId = UUID.randomUUID();
+
+        Vehicle vehicle = Vehicle.builder()
+                .id(vehicleId)
+                .quantity(3)
+                .status(VehicleStatus.ACTIVE)
+                .build();
+
+        User user = User.builder()
+                .email("admin@test.com")
+                .role(Role.ADMIN)
+                .build();
+
+        when(vehicleRepository.findById(vehicleId))
+                .thenReturn(Optional.of(vehicle));
+
+        when(userRepository.findByEmail("admin@test.com"))
+                .thenReturn(Optional.of(user));
+
+        when(vehicleRepository.save(any()))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        inventoryService.restockVehicle(
+                vehicleId,
+                2,
+                "admin@test.com"
+        );
+
+        verify(transactionRepository)
+                .save(argThat(transaction ->
+
+                        transaction.getType() == TransactionType.RESTOCK &&
+                                transaction.getQuantityChange() == 2
+
+                ));
+    }
 }
