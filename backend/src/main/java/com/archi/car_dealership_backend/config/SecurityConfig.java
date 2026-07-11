@@ -1,6 +1,8 @@
 package com.archi.car_dealership_backend.config;
 
 import com.archi.car_dealership_backend.auth.util.JwtAuthenticationFilter;
+import com.archi.car_dealership_backend.security.JwtAccessDeniedHandler;
+import com.archi.car_dealership_backend.security.JwtAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +27,8 @@ public class SecurityConfig {
 
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
+    private final JwtAuthenticationEntryPoint authenticationEntryPoint;
+    private final JwtAccessDeniedHandler accessDeniedHandler;
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -63,7 +66,10 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
 
                 .httpBasic(Customizer.withDefaults())
-
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler)
+                )
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
