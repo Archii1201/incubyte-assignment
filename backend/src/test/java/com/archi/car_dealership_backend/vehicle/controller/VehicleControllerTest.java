@@ -15,6 +15,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 
@@ -297,5 +299,55 @@ class VehicleControllerTest {
         verify(vehicleService, never())
                 .deleteVehicle(any());
     }
+    @Test
+    @WithMockUser
+    void searchVehicles_filtersByMake() throws Exception {
 
+        VehicleResponse vehicle =
+                new VehicleResponse(
+                        UUID.randomUUID(),
+                        "Toyota",
+                        "Corolla",
+                        "Sedan",
+                        new BigDecimal("22000"),
+                        5,
+                        "ACTIVE"
+                );
+
+        when(vehicleService.searchVehicles(any()))
+                .thenReturn(new PageImpl<>(List.of(vehicle)));
+
+        mockMvc.perform(
+                        get("/api/vehicles/search")
+                                .param("make", "Toyota")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].make")
+                        .value("Toyota"));
+    }
+    @Test
+    @WithMockUser
+    void searchVehicles_returnsEmptyPage() throws Exception {
+
+        when(vehicleService.searchVehicles(any()))
+                .thenReturn(Page.empty());
+
+        mockMvc.perform(get("/api/vehicles/search"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isEmpty());
+    }
+    @Test
+    @WithMockUser
+    void searchVehicles_supportsPagination() throws Exception {
+
+        when(vehicleService.searchVehicles(any()))
+                .thenReturn(Page.empty());
+
+        mockMvc.perform(
+                        get("/api/vehicles/search")
+                                .param("page", "1")
+                                .param("size", "5")
+                )
+                .andExpect(status().isOk());
+    }
 }
