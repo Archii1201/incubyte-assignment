@@ -40,3 +40,14 @@ export const searchVehicles = async (params) => {
 
     return response.data;
 };
+export async function purchaseVehicle(id, quantity) {
+    const response = await api.post(
+        `/vehicles/${id}/purchase`,
+        null,
+        {
+            params: { quantity }
+        }
+    );
+
+    return response.data;
+}
