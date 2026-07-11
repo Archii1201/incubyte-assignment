@@ -1,5 +1,6 @@
 package com.archi.car_dealership_backend.vehicle.service;
 
+import com.archi.car_dealership_backend.auth.exception.ResourceNotFoundException;
 import com.archi.car_dealership_backend.entity.Vehicle;
 import com.archi.car_dealership_backend.repository.VehicleRepository;
 import com.archi.car_dealership_backend.vehicle.dto.VehicleRequest;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +36,20 @@ public class VehicleServiceImpl implements VehicleService {
                 .stream()
                 .map(VehicleMapper::toResponse)
                 .toList();
+    }
+    public VehicleResponse updateVehicle(UUID id, VehicleRequest request) {
+        Vehicle vehicle = vehicleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found with id: " + id));
+
+        vehicle.setMake(request.make());
+        vehicle.setModel(request.model());
+        vehicle.setCategory(request.category());
+        vehicle.setPrice(request.price());
+        vehicle.setQuantity(request.quantity());
+        // Note: status and createdAt are NOT updated
+
+        Vehicle updated = vehicleRepository.save(vehicle);
+        return VehicleMapper.toResponse(updated);
     }
 
 }

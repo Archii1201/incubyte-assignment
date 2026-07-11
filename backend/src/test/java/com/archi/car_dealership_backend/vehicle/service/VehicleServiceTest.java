@@ -1,5 +1,6 @@
 package com.archi.car_dealership_backend.vehicle.service;
 
+import com.archi.car_dealership_backend.auth.exception.ResourceNotFoundException;
 import com.archi.car_dealership_backend.entity.Vehicle;
 import com.archi.car_dealership_backend.entity.VehicleStatus;
 import com.archi.car_dealership_backend.repository.VehicleRepository;
