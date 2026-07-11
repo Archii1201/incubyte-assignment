@@ -136,5 +136,32 @@ describe("VehicleList", () => {
             })
         ).toBeInTheDocument();
     });
+    test("disables purchase button when vehicle is out of stock", async () => {
+
+    searchVehicles.mockResolvedValue({
+        content: [
+            {
+                id: "1",
+                make: "Toyota",
+                model: "Corolla",
+                price: 22000,
+                quantity: 0,
+            },
+        ],
+        totalPages: 1,
+    });
+
+    render(
+        <MemoryRouter>
+            <VehicleList />
+        </MemoryRouter>
+    );
+
+    const button = await screen.findByRole("button", {
+        name: /out of stock/i,
+    });
+
+    expect(button).toBeDisabled();
+});
 
 });
