@@ -2,6 +2,7 @@ package com.archi.car_dealership_backend.vehicle.service;
 
 import com.archi.car_dealership_backend.auth.exception.ResourceNotFoundException;
 import com.archi.car_dealership_backend.entity.Vehicle;
+import com.archi.car_dealership_backend.entity.VehicleStatus;
 import com.archi.car_dealership_backend.repository.VehicleRepository;
 import com.archi.car_dealership_backend.vehicle.dto.VehicleRequest;
 import com.archi.car_dealership_backend.vehicle.dto.VehicleResponse;
@@ -61,6 +62,20 @@ public class VehicleServiceImpl implements VehicleService {
                                 "Vehicle not found with id: " + id));
 
         return VehicleMapper.toResponse(vehicle);
+    }
+    @Override
+    public void deleteVehicle(UUID id) {
+
+        Vehicle vehicle =
+                vehicleRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Vehicle not found with id: " + id
+                                ));
+
+        vehicle.setStatus(VehicleStatus.DISCONTINUED);
+
+        vehicleRepository.save(vehicle);
     }
 
 }

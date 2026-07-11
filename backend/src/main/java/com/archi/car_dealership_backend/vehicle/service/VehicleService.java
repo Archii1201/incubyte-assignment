@@ -12,4 +12,5 @@ public interface VehicleService {
     public List<VehicleResponse> listVehicles();
     VehicleResponse getVehicleById(UUID id);
     VehicleResponse updateVehicle(UUID id, VehicleRequest request);
+    void deleteVehicle(UUID id);
 }
