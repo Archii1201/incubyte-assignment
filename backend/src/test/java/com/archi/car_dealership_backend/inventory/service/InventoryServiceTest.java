@@ -50,7 +50,7 @@ class InventoryServiceTest {
 
         User user = User.builder()
                 .id(userId)
-                .username("archi")
+                .name("archi")
                 .build();
 
         when(vehicleRepository.findById(vehicleId))
