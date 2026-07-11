@@ -33,7 +33,7 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     public List<VehicleResponse> listVehicles() {
 
-        return vehicleRepository.findAll()
+        return vehicleRepository.findByStatus(VehicleStatus.ACTIVE)
                 .stream()
                 .map(VehicleMapper::toResponse)
                 .toList();
