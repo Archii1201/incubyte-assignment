@@ -3,6 +3,7 @@ package com.archi.car_dealership_backend.auth.service;
 import com.archi.car_dealership_backend.auth.dto.AuthResponse;
 import com.archi.car_dealership_backend.auth.dto.RegisterRequest;
 import com.archi.car_dealership_backend.auth.exception.DuplicateResourceException;
+import com.archi.car_dealership_backend.auth.util.JwtUtil;
 import com.archi.car_dealership_backend.entity.Role;
 import com.archi.car_dealership_backend.entity.User;
 import com.archi.car_dealership_backend.repository.UserRepository;
