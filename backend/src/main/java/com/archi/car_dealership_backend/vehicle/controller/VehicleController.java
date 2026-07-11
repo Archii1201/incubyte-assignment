@@ -2,14 +2,17 @@ package com.archi.car_dealership_backend.vehicle.controller;
 
 import com.archi.car_dealership_backend.vehicle.dto.VehicleRequest;
 import com.archi.car_dealership_backend.vehicle.dto.VehicleResponse;
+import com.archi.car_dealership_backend.vehicle.dto.VehicleSearchRequest;
 import com.archi.car_dealership_backend.vehicle.service.VehicleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -74,4 +77,46 @@ public class VehicleController {
 
         return ResponseEntity.noContent().build();
     }
+    @GetMapping("/search")
+    public ResponseEntity<Page<VehicleResponse>> searchVehicles(
+
+            @RequestParam(required = false)
+            String make,
+
+            @RequestParam(required = false)
+            String model,
+
+            @RequestParam(required = false)
+            String category,
+
+            @RequestParam(required = false)
+            BigDecimal minPrice,
+
+            @RequestParam(required = false)
+            BigDecimal maxPrice,
+
+            @RequestParam(defaultValue = "0")
+            Integer page,
+
+            @RequestParam(defaultValue = "10")
+            Integer size
+    ) {
+
+        VehicleSearchRequest request =
+                new VehicleSearchRequest(
+                        make,
+                        model,
+                        category,
+                        minPrice,
+                        maxPrice,
+                        page,
+                        size
+                );
+
+        Page<VehicleResponse> response =
+                vehicleService.searchVehicles(request);
+
+        return ResponseEntity.ok(response);
+    }
+
 }
