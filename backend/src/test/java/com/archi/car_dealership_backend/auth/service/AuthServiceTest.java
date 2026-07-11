@@ -8,12 +8,13 @@ import com.archi.car_dealership_backend.auth.util.JwtUtil;
 import com.archi.car_dealership_backend.entity.Role;
 import com.archi.car_dealership_backend.entity.User;
 import com.archi.car_dealership_backend.repository.UserRepository;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
-import org.junit.jupiter.api.Test;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 
@@ -32,6 +33,8 @@ class AuthServiceTest {
     private UserRepository userRepository;
     @Mock private PasswordEncoder passwordEncoder;
     @Mock private JwtUtil jwtUtil;
+    @Mock
+    private AuthenticationManager authenticationManager;
     @InjectMocks
     private AuthService authService;
 
