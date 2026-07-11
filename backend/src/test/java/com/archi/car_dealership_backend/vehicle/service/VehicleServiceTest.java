@@ -180,5 +180,68 @@ class VehicleServiceTest {
 
         verify(vehicleRepository).save(argThat(v -> v.getCreatedAt().equals(createdAt)));
     }
+    @Test
+    void deleteVehicle_marksVehicleAsDiscontinued() {
 
+        UUID id = UUID.randomUUID();
+
+        Vehicle vehicle = Vehicle.builder()
+                .id(id)
+                .make("Toyota")
+                .model("Corolla")
+                .status(VehicleStatus.ACTIVE)
+                .build();
+
+        when(vehicleRepository.findById(id))
+                .thenReturn(Optional.of(vehicle));
+
+        when(vehicleRepository.save(any()))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        vehicleService.deleteVehicle(id);
+
+        assertEquals(
+                VehicleStatus.DISCONTINUED,
+                vehicle.getStatus()
+        );
+
+        verify(vehicleRepository).save(vehicle);
+    }
+    @Test
+    void deleteVehicle_throwsException_whenVehicleNotFound() {
+
+        UUID id = UUID.randomUUID();
+
+        when(vehicleRepository.findById(id))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                ResourceNotFoundException.class,
+                () -> vehicleService.deleteVehicle(id)
+        );
+
+        verify(vehicleRepository, never())
+                .save(any());
+    }
+    @Test
+    void deleteVehicle_whenAlreadyDiscontinued() {
+
+        UUID id = UUID.randomUUID();
+
+        Vehicle vehicle = Vehicle.builder()
+                .id(id)
+                .status(VehicleStatus.DISCONTINUED)
+                .build();
+
+        when(vehicleRepository.findById(id))
+                .thenReturn(Optional.of(vehicle));
+
+        when(vehicleRepository.save(any()))
+                .thenReturn(vehicle);
+
+        vehicleService.deleteVehicle(id);
+
+        verify(vehicleRepository)
+                .save(vehicle);
+    }
 }
