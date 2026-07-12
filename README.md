@@ -28,7 +28,7 @@ A production-grade REST API and single-page application for managing vehicle inv
 - **Backend:** Spring Boot REST API with JWT auth, optimistic locking, and transaction logging
 - **Frontend:** React SPA with role-based UI and real-time inventory updates
 - **Database:** PostgreSQL with Flyway migrations
-- **Testing:** 82%+ code coverage with unit, integration, and concurrent safety tests
+- **Testing:** with unit, integration, and concurrent safety tests
 
 ---
 
@@ -41,9 +41,9 @@ A production-grade REST API and single-page application for managing vehicle inv
 - ✅ Inventory restocking with auto-activation
 - ✅ Role-based access control (USER vs ADMIN)
 - ✅ Complete audit trail (every transaction logged)
-- ✅ Admin dashboard with summary stats and bulk operations
+- ✅ Admin dashboard with inventory management tools
 - ✅ Responsive UI with error handling and loading states
-- ✅ Production-ready (Swagger docs, structured logging, exception handling)
+- ✅ Production-ready (Swagger documentation, validation, exception handling)
 
 ---
 
@@ -59,7 +59,7 @@ A production-grade REST API and single-page application for managing vehicle inv
 | **JPA Specifications** | Dynamic search filters without rewriting queries |
 | **Transaction Logging** | Complete audit trail for compliance and debugging |
 | **Role-Based UI** | Admin actions hidden from regular users client-side + server enforces 403 |
-| **React Query** | Automatic caching, retries, background refetches |
+| **React Context API + React Hooks** | Authentication state management and client-side state |
 | **Testcontainers** | Real PostgreSQL in tests, no data pollution |
 
 ---
@@ -120,7 +120,7 @@ mvn clean test
 
 # Start server
 mvn spring-boot:run
-# Runs on http://localhost:8080
+# Runs on http://localhost:8081
 ```
 
 ### Frontend Setup
@@ -132,7 +132,7 @@ cd frontend
 npm install
 
 # Set environment variables
-echo "VITE_API_BASE_URL=http://localhost:8080/api" > .env.local
+echo "VITE_API_BASE_URL=http://localhost:8081/api" > .env.local
 
 # Run tests
 npm run test
@@ -378,23 +378,19 @@ This layered testing strategy provides confidence that both individual component
 
 
 #
-### Frontend Coverage: 76% Line Coverage
 
-**Coverage Report Location:** `frontend/coverage/index.html`
 
-**Key Metrics:**
-- Statements: **76%**
-- Branches: **71%**
-- Functions: **78%**
-- Lines: **76%**
-
-**Test Components:**
-- `SearchBar.test.tsx` - Debouncing, filter composition
-- `PurchaseButton.test.tsx` - Button states, purchase flow
-- `AdminVehicleTable.test.tsx` - Table rendering, actions
-- `AdminDashboard.test.tsx` - Modals, role-based access
-- `ProtectedRoute.test.tsx` - Route guarding, redirects
-- `VehicleCard.test.tsx` - Card rendering, actions
+**Frontend Test Components:**
+- Login
+- Register
+- VehicleList
+- PurchaseVehicle
+- DeleteVehicle
+- RestockVehicle
+- AddVehicleForm
+- EditVehicleForm
+- ProtectedRoute
+- AuthContext
 
 ---
 
