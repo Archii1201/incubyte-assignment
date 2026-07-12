@@ -37,8 +37,9 @@ A production-grade REST API and single-page application for managing vehicle inv
 - ✅ User authentication (register, login, JWT tokens)
 - ✅ Full CRUD for vehicles (create, read, update, delete with soft deletes)
 - ✅ Advanced search with dynamic filters (make, model, category, price range)
+- ✅ Server-side pagination for efficient inventory browsing
 - ✅ **Safe concurrent purchases** (optimistic locking + retry logic, proven safe with integration tests)
-- ✅ Inventory restocking with auto-activation
+- ✅ Inventory restocking with automatic status updates (ACTIVE / OUT_OF_STOCK)
 - ✅ Role-based access control (USER vs ADMIN)
 - ✅ Complete audit trail (every transaction logged)
 - ✅ Admin dashboard with inventory management tools
@@ -61,7 +62,8 @@ A production-grade REST API and single-page application for managing vehicle inv
 | **Role-Based UI** | Admin actions hidden from regular users client-side + server enforces 403 |
 | **React Context API + React Hooks** | Authentication state management and client-side state |
 | **Testcontainers** | Real PostgreSQL in tests, no data pollution |
-
+| **Database Indexing** | Added indexes on frequently queried columns (including vehicle status) to improve search performance |
+| **Server-side Pagination** | Reduces API response size and improves scalability for large inventories |
 ---
 
 ## 🛠️ Tech Stack
@@ -297,10 +299,11 @@ Workflow covered:
 
 - Create vehicle
 - Restock inventory
+- Automatic status transition to ACTIVE
 - Purchase vehicle
+- Automatic transition to OUT_OF_STOCK when inventory reaches zero
 - Verify inventory transaction history
-- Soft delete vehicle
-- Verify discontinued status
+- Soft delete vehicle (DISCONTINUED)
 
 This ensures multiple application layers work together correctly.
 
@@ -378,7 +381,19 @@ This layered testing strategy provides confidence that both individual component
 
 
 #
+### Database Optimization
 
+The database schema includes indexes to improve query performance.
+
+Implemented indexes include:
+
+- make
+- category
+- vehicle_id
+- status
+
+The `status` index was introduced in a dedicated Flyway migration (`V2__add_status_index.sql`) to optimize inventory listing and filtering queries.
+#
 
 **Frontend Test Components:**
 - Login
