@@ -166,8 +166,8 @@ All endpoints except `/auth/**` require JWT token:
 | POST | `/api/auth/login` | Login and get JWT |
 | GET | `/api/vehicles` | List all vehicles |
 | GET | `/api/vehicles/search` | Search with filters |
-| POST | `/api/vehicles` | Create vehicle (admin) |
-| PUT | `/api/vehicles/{id}` | Update vehicle (admin) |
+| POST | `/api/vehicles` | Create vehicle  |
+| PUT | `/api/vehicles/{id}` | Update vehicle |
 | DELETE | `/api/vehicles/{id}` | Delete vehicle (admin) |
 | POST | `/api/vehicles/{id}/purchase` | Purchase vehicle |
 | POST | `/api/vehicles/{id}/restock` | Restock vehicle (admin) |
