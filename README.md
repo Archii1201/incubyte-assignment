@@ -248,296 +248,193 @@ curl -X POST http://localhost:8080/api/vehicles/{vehicleId}/purchase \
 ```
 
 ---
+## 🧪 Testing Strategy
 
-## ✅ Testing Strategy
+This project follows a layered testing approach inspired by Test-Driven Development (TDD). Every major feature was validated through unit, controller, repository, and integration tests to ensure correctness, reliability, and maintainability.
 
-### Testing Pyramid
-△
-    / \         E2E Tests (Few)
-   /   \        Frontend integration
-  /─────\
- /       \      Integration Tests (Some)
-/         \     Concurrent purchase, Full workflows
-### Backend Test Coverage: **82%**
+### Development Approach
 
-**Run all tests:**
-```bash
-cd backend
-mvn clean test
-```
+For each feature, the development workflow followed the cycle:
 
-**Generate JaCoCo report:**
-```bash
-mvn clean test jacoco:report
-open target/site/jacoco/index.html
-```
+1. Write a failing test (Red)
+2. Implement the minimum code to make the test pass (Green)
+3. Refactor while keeping all tests passing (Refactor)
 
-### Frontend Test Coverage: **76%**
-
-**Run all tests:**
-```bash
-cd frontend
-npm run test
-```
-
-**Generate coverage:**
-```bash
-npm run test -- --coverage
-open coverage/index.html
-```
+This approach helped maintain confidence while incrementally building the application.
 
 ---
 
-## 🔒 Critical Test: Concurrent Purchase Safety
+## Test Coverage
 
-### What This Tests
+### Unit Tests
 
-Two users purchasing the same vehicle simultaneously (qty = 1). The system must ensure:
-- ✅ Exactly ONE purchase succeeds
-- ✅ Exactly ONE purchase fails with 409 Conflict
-- ✅ Quantity NEVER goes negative
-- ✅ EXACTLY ONE transaction logged
+Unit tests verify the business logic in isolation using mocked dependencies.
 
-### Implementation: Optimistic Locking
+**Covered components**
 
-**Database:** `@Version` column on vehicles table tracks concurrent updates
+- Authentication Service
+- Vehicle Service
+- Inventory Service
 
-```java
-@Entity
-@Table(name = "vehicles")
-public class Vehicle {
-    @Id
-    private UUID id;
-    
-    @Version
-    private Integer version;  // ← Optimistic locking
-    
-    private Integer quantity;
-}
-```
+These tests validate:
 
-**Service Layer:** Retry logic with exponential backoff
-
-```java
-private PurchaseResponse purchaseWithRetry(UUID vehicleId, UUID userId, int attempt) {
-    try {
-        Vehicle vehicle = vehicleRepository.findById(vehicleId).orElseThrow();
-        
-        if (vehicle.getQuantity() <= 0) {
-            throw new BusinessRuleException("Out of stock");
-        }
-        
-        vehicle.setQuantity(vehicle.getQuantity() - 1);
-        vehicleRepository.save(vehicle);  // ← Version checked here
-        
-        transactionRepository.save(createTransaction(...));
-        return response;
-        
-    } catch (ObjectOptimisticLockingFailureException e) {
-        if (attempt < MAX_RETRIES) {
-            Thread.sleep(RETRY_DELAY_MS * (attempt + 1));  // Exponential backoff
-            return purchaseWithRetry(vehicleId, userId, attempt + 1);
-        } else {
-            throw new OptimisticLockException("Concurrent update conflict");
-        }
-    }
-}
-```
-
-**HTTP Handling:** 409 Conflict response
-
-```java
-@ExceptionHandler(OptimisticLockException.class)
-public ResponseEntity<ErrorResponse> handleOptimisticLock(OptimisticLockException ex) {
-    return ResponseEntity.status(HttpStatus.CONFLICT)
-        .body(new ErrorResponse(409, "Conflict", ex.getMessage(), LocalDateTime.now()));
-}
-```
-
-### Integration Test: Proof of Safety
-
-```java
-@SpringBootTest
-@AutoConfigureMockMvc
-@Testcontainers
-class ConcurrentPurchaseIntegrationTest {
-
-    @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
-
-    @Test
-    void twoUsersPurchasingSameVehicleSimultaneously_neverOversells() throws Exception {
-        // Setup: one vehicle with quantity 1
-        Vehicle vehicle = Vehicle.builder()
-            .make("Tesla").model("Model 3").quantity(1)
-            .status(VehicleStatus.ACTIVE).build();
-        vehicleRepository.save(vehicle);
-
-        User user1 = User.builder().name("Alice").email("alice@test.com")
-            .password("hashed").role(Role.USER).build();
-        User user2 = User.builder().name("Bob").email("bob@test.com")
-            .password("hashed").role(Role.USER).build();
-        userRepository.saveAll(List.of(user1, user2));
-
-        // Execute: Two concurrent purchases
-        ExecutorService executor = Executors.newFixedThreadPool(2);
-        AtomicReference<Exception> exception1 = new AtomicReference<>();
-        AtomicReference<Exception> exception2 = new AtomicReference<>();
-
-        executor.submit(() -> {
-            try {
-                inventoryService.purchaseVehicle(vehicle.getId(), user1.getId());
-            } catch (Exception e) {
-                exception1.set(e);
-            }
-        });
-
-        executor.submit(() -> {
-            try {
-                inventoryService.purchaseVehicle(vehicle.getId(), user2.getId());
-            } catch (Exception e) {
-                exception2.set(e);
-            }
-        });
-
-        executor.shutdown();
-        executor.awaitTermination(5, TimeUnit.SECONDS);
-
-        // Verify: Safety guarantees
-        Vehicle updated = vehicleRepository.findById(vehicle.getId()).orElseThrow();
-        assertThat(updated.getQuantity()).isEqualTo(0);  // ✅ Not negative
-        
-        List<InventoryTransaction> transactions = 
-            transactionRepository.findByVehicleIdOrderByTimestampDesc(vehicle.getId());
-        assertThat(transactions).hasSize(1);  // ✅ Exactly one succeeded
-        
-        boolean hasConflict = exception1.get() instanceof OptimisticLockException ||
-                            exception2.get() instanceof OptimisticLockException;
-        assertThat(hasConflict).isTrue();  // ✅ One failed with 409
-    }
-}
-```
-
-### Test Results
-
-✅ **PASSED** - No overselling, concurrent safety verified
+- Business rules
+- Input validation
+- Exception handling
+- Inventory operations
+- Authentication logic
 
 ---
 
-## 🏢 Admin Workflow Integration Test
+### Controller Tests
 
-**What This Tests:** Complete admin operations flow
+Controller endpoints are tested using `@WebMvcTest` and `MockMvc`.
+
+The API layer is validated independently from the service layer, including:
+
+- Authentication endpoints
+- Vehicle CRUD endpoints
+- Purchase endpoint
+- Restock endpoint
+- Security configuration
+- HTTP status codes
+- Request validation
+- Response payloads
+
+---
+
+### Repository Tests
+
+Repository tests execute against a real PostgreSQL database using Testcontainers.
+
+These tests validate:
+
+- Custom repository queries
+- Search filtering
+- Pagination
+- Database mappings
+- JPA persistence
+
+---
+
+### Integration Tests
+
+The project includes end-to-end integration tests that execute complete business workflows against a real PostgreSQL container.
+
+#### Concurrent Purchase Integration Test
+
+Simulates multiple users attempting to purchase the same vehicle simultaneously.
+
+Verified:
+
+- Concurrent request handling
+- Inventory consistency
+- Prevention of negative stock
+- Transaction integrity
+
+---
+
+#### Optimistic Locking Integration Test
+
+Validates optimistic locking using the `@Version` field.
+
+Verified:
+
+- Concurrent update detection
+- Conflict handling
+- Prevention of lost updates
+
+---
+
+#### Admin Workflow Integration Test
+
+Tests the complete inventory lifecycle.
+
+Workflow covered:
+
 - Create vehicle
-- Search/list vehicle
-- Update vehicle details
 - Restock inventory
+- Purchase vehicle
+- Verify inventory transaction history
 - Soft delete vehicle
-- Verify audit trail
+- Verify discontinued status
 
-```java
-@SpringBootTest
-@AutoConfigureMockMvc
-@Testcontainers
-class AdminWorkflowIntegrationTest {
-
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    void fullAdminWorkflow_createSearchEditRestockDelete() throws Exception {
-        // 1. Create vehicle
-        MvcResult createResult = mockMvc.perform(post("/api/vehicles")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content("""
-                {"make":"Tesla","model":"Model 3","category":"Sedan",
-                 "price":45000,"quantity":5}
-                """))
-            .andExpect(status().isCreated())
-            .andReturn();
-
-        String vehicleId = JsonPath.read(createResult.getResponse().getContentAsString(), "$.id");
-
-        // 2. List and verify
-        mockMvc.perform(get("/api/vehicles"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", hasSize(1)))
-            .andExpect(jsonPath("$[0].make").value("Tesla"));
-
-        // 3. Search
-        mockMvc.perform(get("/api/vehicles/search?make=Tesla"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.content", hasSize(1)));
-
-        // 4. Update
-        mockMvc.perform(put("/api/vehicles/" + vehicleId)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content("""
-                {"make":"Tesla","model":"Model S","category":"Sedan",
-                 "price":75000,"quantity":5}
-                """))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.model").value("Model S"));
-
-        // 5. Restock
-        mockMvc.perform(post("/api/vehicles/" + vehicleId + "/restock")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content("""{"quantity":10}"""))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.newQuantity").value(15));
-
-        // 6. Verify transaction log
-        List<InventoryTransaction> transactions = transactionRepository.findAll();
-        assertThat(transactions).hasSize(1);
-        assertThat(transactions.get(0).getType()).isEqualTo(TransactionType.RESTOCK);
-
-        // 7. Delete
-        mockMvc.perform(delete("/api/vehicles/" + vehicleId))
-            .andExpect(status().isNoContent());
-
-        // 8. Verify deleted (excluded from list)
-        mockMvc.perform(get("/api/vehicles"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", hasSize(0)));
-    }
-}
-```
-
-### Test Results
-
-✅ **PASSED** - Full admin workflow verified end-to-end
+This ensures multiple application layers work together correctly.
 
 ---
 
-## 📊 Test Coverage Reports
+## Database Testing
 
-### Backend Coverage: 82% Line Coverage
+Database behaviour is validated using:
 
-**JaCoCo Report Location:** `backend/target/site/jacoco/index.html`
+- PostgreSQL Testcontainers
+- Flyway migrations
+- JPA repositories
+- Optimistic locking
+- Transaction management
 
-**Key Metrics:**
-- Line Coverage: **82%**
-- Branch Coverage: **78%**
-- Class Coverage: **95%**
+Tests execute against an actual PostgreSQL instance rather than an in-memory database, providing production-like behaviour.
 
-**Coverage by Component:**
-| Component | Coverage |
-|-----------|----------|
-| Controllers | 90% |
-| Services | 85% |
-| Repositories | 88% |
-| Entities | 100% |
-| DTOs | 95% |
-| Exceptions | 100% |
+---
 
-**Test Classes:**
-- `UserRepositoryTest` - Save, find, uniqueness
-- `AuthServiceTest` - Register, login, password hashing
-- `VehicleServiceTest` - CRUD, validation, soft delete
-- `VehicleRepositorySearchTest` - Dynamic filters, pagination
-- `InventoryServiceTest` - Purchase, restock, transaction logging
-- **`ConcurrentPurchaseIntegrationTest`** - Concurrent safety proof ⭐
-- `AdminWorkflowIntegrationTest` - Full admin workflow ⭐
-- `VehicleControllerTest` - HTTP status codes, auth
-- `AuthControllerTest` - Register, login endpoints
+## Security Testing
 
+Security tests verify:
+
+- JWT authentication
+- Protected endpoints
+- Unauthorized access (401)
+- Validation failures (400)
+- Authenticated requests
+- Role-based endpoint protection
+
+---
+
+## Code Coverage
+
+Code coverage is generated using **JaCoCo** during the Maven build lifecycle.
+
+Generate the report:
+
+```bash
+mvn clean verify
+```
+
+Coverage report:
+
+```
+target/site/jacoco/index.html
+```
+
+---
+
+## Test Stack
+
+- JUnit 5
+- Spring Boot Test
+- MockMvc
+- Mockito
+- Testcontainers
+- PostgreSQL
+- JaCoCo
+- Maven Surefire
+
+---
+
+## Testing Philosophy
+
+Rather than testing individual methods only, this project validates the application at multiple levels:
+
+- Business logic through unit tests
+- REST APIs through controller tests
+- Persistence through repository tests
+- Complete business workflows through integration tests
+- Concurrent operations through multi-threaded integration tests
+
+This layered testing strategy provides confidence that both individual components and the overall system behave correctly under real-world conditions.
+
+
+#
 ### Frontend Coverage: 76% Line Coverage
 
 **Coverage Report Location:** `frontend/coverage/index.html`
