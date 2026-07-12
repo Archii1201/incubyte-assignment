@@ -114,4 +114,35 @@ class InventoryControllerTest {
                         eq("admin@test.com")
                 );
     }
+    @Test
+    @WithMockUser(username = "admin@test.com")
+    void restockVehicle_returns400_whenQuantityInvalid() throws Exception {
+
+        UUID id = UUID.randomUUID();
+
+        mockMvc.perform(
+                        post("/api/vehicles/{id}/restock", id)
+                                .param("quantity", "0")
+                )
+                .andExpect(status().isBadRequest());
+    }
+    @Test
+    @WithMockUser(username = "admin@test.com")
+    void restockVehicle_callsServiceOnce() throws Exception {
+
+        UUID id = UUID.randomUUID();
+
+        mockMvc.perform(
+                        post("/api/vehicles/{id}/restock", id)
+                                .param("quantity", "3")
+                )
+                .andExpect(status().isOk());
+
+        verify(inventoryService, times(1))
+                .restockVehicle(
+                        eq(id),
+                        eq(3),
+                        eq("admin@test.com")
+                );
+    }
 }
