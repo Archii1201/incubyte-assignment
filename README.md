@@ -78,13 +78,15 @@ A production-grade REST API and single-page application for managing vehicle inv
 - **Migration:** Flyway
 
 ### Frontend
-- **Framework:** React 18+ with TypeScript
-- **Routing:** React Router
-- **State:** React Query (TanStack Query)
-- **HTTP:** Axios
-- **Styling:** Tailwind CSS
-- **Testing:** Vitest, React Testing Library
-- **Build:** Vite
+
+- **Framework:** React 19 (JavaScript)
+- **Build Tool:** Vite
+- **Routing:** React Router DOM
+- **State Management:** React Context API + React Hooks (`useState`, `useEffect`)
+- **Authentication:** JWT-based Authentication
+- **HTTP Client:** Axios
+- **Styling:** Custom CSS
+- **Testing:** Vitest + React Testing Library
 
 ---
 
