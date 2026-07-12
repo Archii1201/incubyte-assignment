@@ -2,7 +2,7 @@
 
 A production-grade REST API and single-page application for managing vehicle inventory with concurrent-safe purchasing, role-based access control, and comprehensive audit logging.
 
-**GitHub:** https://github.com/Archii1201/car-dealership-inventory
+**GitHub:** [https://github.com/Archii1201/car-dealership-inventory](https://github.com/Archii1201/incubyte-assignment)
 
 ---
 
