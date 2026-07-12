@@ -152,9 +152,9 @@ describe("VehicleList", () => {
     });
 
     render(
-        <MemoryRouter>
-            <VehicleList />
-        </MemoryRouter>
+        <BrowserRouter>
+                <VehicleList />
+            </BrowserRouter>
     );
 
     const button = await screen.findByRole("button", {

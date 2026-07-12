@@ -1,5 +1,10 @@
 import { describe, test, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import {
+    render,
+    screen,
+    fireEvent,
+    waitFor
+} from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 
 import VehicleList from "../pages/VehicleList";
@@ -65,9 +70,9 @@ describe("Purchase Vehicle", () => {
     });
 
     render(
-        <MemoryRouter>
+       <BrowserRouter>
             <VehicleList />
-        </MemoryRouter>
+        </BrowserRouter>
     );
 
     fireEvent.click(
@@ -94,9 +99,9 @@ test("purchase cancelled does not call API", async () => {
     });
 
     render(
-        <MemoryRouter>
+        <BrowserRouter>
             <VehicleList />
-        </MemoryRouter>
+        </BrowserRouter>
     );
 
     fireEvent.click(

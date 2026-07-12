@@ -51,3 +51,16 @@ export async function purchaseVehicle(id, quantity) {
 
     return response.data;
 }
+export const restockVehicle = async (id, quantity) => {
+
+    await api.post(
+        `/vehicles/${id}/restock`,
+        null,
+        {
+            params: {
+                quantity,
+            },
+        }
+    );
+
+};

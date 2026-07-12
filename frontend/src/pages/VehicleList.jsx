@@ -5,8 +5,8 @@ import {
     searchVehicles,
     deleteVehicle,
     purchaseVehicle,
+    restockVehicle,
 } from "../services/vehicleService";
-
 export default function VehicleList() {
 
     const [vehicles, setVehicles] = useState([]);
@@ -106,7 +106,37 @@ export default function VehicleList() {
             );
         }
     };
+    const handleRestock = async (id) => {
 
+    const quantity = window.prompt(
+        "Enter quantity to restock:"
+    );
+
+    if (quantity === null) {
+        return;
+    }
+
+    try {
+
+        await restockVehicle(
+            id,
+            Number(quantity)
+        );
+
+        await loadVehicles();
+
+        alert("Vehicle restocked successfully.");
+
+    } catch (error) {
+
+        alert(
+            error.response?.data?.message ||
+            "Restock failed."
+        );
+
+    }
+
+};
     const handleDelete = async (id) => {
 
         const confirmed = window.confirm(
@@ -220,7 +250,15 @@ export default function VehicleList() {
                             <button>Edit</button>
                         </Link>
 
-                        {role === "ADMIN" && (
+                       {role === "ADMIN" && (
+
+                        <>
+
+                            <button
+                                onClick={() => handleRestock(vehicle.id)}
+                            >
+                                Restock
+                            </button>
 
                             <button
                                 onClick={() => handleDelete(vehicle.id)}
@@ -228,7 +266,9 @@ export default function VehicleList() {
                                 Delete
                             </button>
 
-                        )}
+                        </>
+
+                    )}
 
                     </div>
 
