@@ -95,4 +95,23 @@ class InventoryControllerTest {
         verify(inventoryService, times(1))
                 .purchaseVehicle(eq(id), eq(1), eq("archi@test.com"));
     }
+    @Test
+    @WithMockUser(username = "admin@test.com")
+    void restockVehicle_returns200() throws Exception {
+
+        UUID id = UUID.randomUUID();
+
+        mockMvc.perform(
+                        post("/api/vehicles/{id}/restock", id)
+                                .param("quantity", "5")
+                )
+                .andExpect(status().isOk());
+
+        verify(inventoryService)
+                .restockVehicle(
+                        eq(id),
+                        eq(5),
+                        eq("admin@test.com")
+                );
+    }
 }
