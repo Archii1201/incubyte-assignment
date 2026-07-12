@@ -3,7 +3,8 @@ target/
 *.class
 .mvn/
 !.mvn/wrapper/maven-wrapper.jar
-
+hs_err_pid*
+replay_pid*
 # Node
 node_modules/
 dist/

@@ -1,5 +1,6 @@
 package com.archi.car_dealership_backend.inventory.service;
 
+import com.archi.car_dealership_backend.auth.exception.BusinessRuleException;
 import com.archi.car_dealership_backend.auth.exception.ResourceNotFoundException;
 import com.archi.car_dealership_backend.entity.*;
 import com.archi.car_dealership_backend.repository.InventoryTransactionRepository;
@@ -154,7 +155,7 @@ class InventoryServiceTest {
                         5,
                         email
                 ))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(BusinessRuleException.class)
                 .hasMessageContaining("Insufficient stock");
 
         verify(transactionRepository, never())

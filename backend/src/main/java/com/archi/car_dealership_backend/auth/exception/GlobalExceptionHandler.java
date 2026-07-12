@@ -42,10 +42,6 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.CONFLICT, ex.getMessage());
     }
 
-    @ExceptionHandler(BusinessRuleException.class)
-    public ResponseEntity<ErrorResponse> handleBusinessRule(BusinessRuleException ex) {
-        return build(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
-    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
@@ -76,5 +72,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(
                 new ErrorResponse(status.value(), status.getReasonPhrase(), message, LocalDateTime.now())
         );
+    }
+    @ExceptionHandler(BusinessRuleException.class)
+    public ResponseEntity<ErrorResponse> handleBusinessRuleException(
+            BusinessRuleException ex
+    ) {
+
+        ErrorResponse error = new ErrorResponse(
+                422,
+                "Business Rule Violation",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(error);
     }
 }

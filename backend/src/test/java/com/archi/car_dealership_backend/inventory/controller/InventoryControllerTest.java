@@ -1,5 +1,6 @@
 package com.archi.car_dealership_backend.inventory.controller;
 
+import com.archi.car_dealership_backend.auth.exception.BusinessRuleException;
 import com.archi.car_dealership_backend.auth.util.JwtUtil;
 import com.archi.car_dealership_backend.config.SecurityConfig;
 import com.archi.car_dealership_backend.inventory.service.InventoryService;
@@ -19,8 +20,7 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -144,5 +144,21 @@ class InventoryControllerTest {
                         eq(3),
                         eq("admin@test.com")
                 );
+    }
+    @Test
+    @WithMockUser(username = "archi@test.com")
+    void purchaseVehicle_returns422_whenBusinessRuleFails() throws Exception {
+
+        UUID id = UUID.randomUUID();
+
+        doThrow(new BusinessRuleException("Insufficient stock"))
+                .when(inventoryService)
+                .purchaseVehicle(eq(id), eq(5), any());
+
+        mockMvc.perform(
+                        post("/api/vehicles/{id}/purchase", id)
+                                .param("quantity", "5")
+                )
+                .andExpect(status().isUnprocessableEntity());
     }
 }

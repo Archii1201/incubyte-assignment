@@ -2,12 +2,14 @@ package com.archi.car_dealership_backend.inventory.service;
 
 import com.archi.car_dealership_backend.auth.exception.ResourceNotFoundException;
 import com.archi.car_dealership_backend.entity.*;
+import com.archi.car_dealership_backend.inventory.dto.PurchaseResponse;
+import com.archi.car_dealership_backend.inventory.dto.RestockResponse;
 import com.archi.car_dealership_backend.repository.InventoryTransactionRepository;
 import com.archi.car_dealership_backend.repository.UserRepository;
 import com.archi.car_dealership_backend.repository.VehicleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import com.archi.car_dealership_backend.auth.exception.BusinessRuleException;
 import java.util.UUID;
 
 @Service
@@ -21,7 +23,7 @@ public class InventoryServiceImpl implements InventoryService {
     private final InventoryTransactionRepository transactionRepository;
 
     @Override
-    public void purchaseVehicle(UUID vehicleId,
+    public PurchaseResponse purchaseVehicle(UUID vehicleId,
                                 int quantity,
                                 String email){
 
@@ -35,9 +37,13 @@ public class InventoryServiceImpl implements InventoryService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User not found"));
-
+        if (quantity <= 0) {
+            throw new BusinessRuleException(
+                    "Quantity must be greater than zero"
+            );
+        }
         if (vehicle.getQuantity() < quantity) {
-            throw new IllegalArgumentException(
+            throw new BusinessRuleException(
                     "Insufficient stock"
             );
         }
@@ -57,9 +63,13 @@ public class InventoryServiceImpl implements InventoryService {
                         .build();
 
         transactionRepository.save(transaction);
+        return PurchaseResponse.builder()
+                .message("Purchase successful")
+                .remainingStock(vehicle.getQuantity())
+                .build();
     }
     @Override
-    public void restockVehicle(
+    public RestockResponse restockVehicle(
             UUID vehicleId,
             int quantity,
             String email
@@ -92,5 +102,9 @@ public class InventoryServiceImpl implements InventoryService {
                         .build();
 
         transactionRepository.save(transaction);
+        return RestockResponse.builder()
+                .message("Vehicle restocked successfully")
+                .currentStock(vehicle.getQuantity())
+                .build();
     }
 }

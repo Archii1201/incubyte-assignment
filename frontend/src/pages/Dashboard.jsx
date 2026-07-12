@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import Layout from "../components/Layout";
@@ -6,42 +7,149 @@ export default function Dashboard() {
 
     const { user } = useAuth();
 
+    const [now, setNow] = useState(new Date());
+
+    useEffect(() => {
+
+        const timer = setInterval(() => {
+
+            setNow(new Date());
+
+        }, 1000);
+
+        return () => clearInterval(timer);
+
+    }, []);
+
+    const hour = now.getHours();
+
+    const greeting =
+        hour < 12
+            ? "Good Morning"
+            : hour < 17
+            ? "Good Afternoon"
+            : "Good Evening";
+
+    const currentDate = now.toLocaleDateString(
+        "en-IN",
+        {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        }
+    );
+
+    const currentTime = now.toLocaleTimeString(
+        "en-IN",
+        {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+        }
+    );
+
     return (
 
         <Layout>
 
             <div className="container">
 
-                <h1 className="page-title">
-                    Dashboard
-                </h1>
-
                 <div className="card section">
 
-                    <h2>
-                        Welcome, {user?.email}
-                    </h2>
+                    <h1 className="page-title">
+                        {greeting}, {user?.email}
+                    </h1>
 
                     <p
                         style={{
-                            marginTop: "10px",
                             color: "#9C7B7B",
+                            marginTop: "10px",
+                            fontSize: "15px",
                         }}
                     >
-                        Logged in as <strong>{user?.role}</strong>
+                        Logged in as{" "}
+                        <strong
+                            style={{
+                                color: "#E64435",
+                            }}
+                        >
+                            {user?.role}
+                        </strong>
                     </p>
+
+                    <div
+                        style={{
+                            marginTop: "20px",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            flexWrap: "wrap",
+                            gap: "10px",
+                        }}
+                    >
+
+                        <div>
+
+                            <p
+                                style={{
+                                    color: "#9C7B7B",
+                                    marginBottom: "5px",
+                                }}
+                            >
+                                Today
+                            </p>
+
+                            <h3>{currentDate}</h3>
+
+                        </div>
+
+                        <div
+                            style={{
+                                textAlign: "right",
+                            }}
+                        >
+
+                            <p
+                                style={{
+                                    color: "#9C7B7B",
+                                    marginBottom: "5px",
+                                }}
+                            >
+                                Current Time
+                            </p>
+
+                            <h2
+                                style={{
+                                    color: "#E64435",
+                                }}
+                            >
+                                {currentTime}
+                            </h2>
+
+                        </div>
+
+                    </div>
 
                 </div>
 
-                <div
-                    className="dashboard-grid"
+                <h2
+                    style={{
+                        marginTop: "35px",
+                        marginBottom: "20px",
+                    }}
                 >
+                    System Overview
+                </h2>
+
+                <div className="dashboard-grid">
 
                     <div className="dashboard-card">
 
                         <h3>Total Vehicles</h3>
 
                         <h1>25</h1>
+
+                        <p>Registered Vehicles</p>
 
                     </div>
 
@@ -51,13 +159,17 @@ export default function Dashboard() {
 
                         <h1>3</h1>
 
+                        <p>Need Restocking</p>
+
                     </div>
 
                     <div className="dashboard-card">
 
-                        <h3>Purchases</h3>
+                        <h3>Out of Stock</h3>
 
-                        <h1>18</h1>
+                        <h1>1</h1>
+
+                        <p>Unavailable Vehicles</p>
 
                     </div>
 
@@ -67,6 +179,8 @@ export default function Dashboard() {
 
                         <h1>₹4.2L</h1>
 
+                        <p>Total Inventory Worth</p>
+
                     </div>
 
                 </div>
@@ -74,13 +188,11 @@ export default function Dashboard() {
                 <div
                     className="card section"
                     style={{
-                        marginTop: "35px",
+                        marginTop: "40px",
                     }}
                 >
 
-                    <h2>
-                        Quick Actions
-                    </h2>
+                    <h2>Quick Actions</h2>
 
                     <div
                         style={{
@@ -93,37 +205,27 @@ export default function Dashboard() {
 
                         <Link to="/vehicles">
 
-                            <button className="btn btn-primary">
-
-                                Vehicle Inventory
-
+                            <button
+                                className="btn btn-primary"
+                            >
+                                🚗 Vehicle Inventory
                             </button>
 
                         </Link>
 
-                        { (
+                        
 
                             <Link to="/vehicles/add">
 
-                                <button className="btn btn-success">
-
-                                    Add Vehicle
-
+                                <button
+                                    className="btn btn-success"
+                                >
+                                    ➕ Add Vehicle
                                 </button>
 
                             </Link>
 
-                        )}
-
-                        {/* <Link to="/transactions">
-
-                            <button className="btn btn-outline">
-
-                                Transactions
-
-                            </button>
-
-                        </Link> */}
+                       
 
                     </div>
 

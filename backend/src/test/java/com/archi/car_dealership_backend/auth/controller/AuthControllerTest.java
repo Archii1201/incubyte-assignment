@@ -15,7 +15,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-
+import com.archi.car_dealership_backend.auth.util.JwtUtil;
+import com.archi.car_dealership_backend.auth.util.JwtAuthenticationFilter;
+import com.archi.car_dealership_backend.security.CustomUserDetailsService;
+import com.archi.car_dealership_backend.security.JwtAccessDeniedHandler;
+import com.archi.car_dealership_backend.security.JwtAuthenticationEntryPoint;
 @AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(AuthController.class)
 class AuthControllerTest {
@@ -25,7 +29,20 @@ class AuthControllerTest {
 
     @MockitoBean
     AuthService authService;
+    @MockitoBean
+    JwtUtil jwtUtil;
 
+    @MockitoBean
+    JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @MockitoBean
+    CustomUserDetailsService customUserDetailsService;
+
+    @MockitoBean
+    JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+    @MockitoBean
+    JwtAccessDeniedHandler jwtAccessDeniedHandler;
     @Test
     void register_returns201_whenSuccessful() throws Exception {
 

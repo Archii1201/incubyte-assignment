@@ -1,5 +1,6 @@
 package com.archi.car_dealership_backend.inventory.controller;
 
+import com.archi.car_dealership_backend.inventory.dto.PurchaseResponse;
 import com.archi.car_dealership_backend.inventory.service.InventoryService;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ public class InventoryController {
 
     @PostMapping("/{id}/purchase")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Void> purchaseVehicle(
+    public ResponseEntity<PurchaseResponse> purchaseVehicle(
             @PathVariable UUID id,
             @RequestParam @Min(1) int quantity,
             Authentication authentication
@@ -55,4 +56,5 @@ public class InventoryController {
 
         return ResponseEntity.ok().build();
     }
+
 }
