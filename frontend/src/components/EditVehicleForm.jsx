@@ -111,70 +111,90 @@ export default function EditVehicleForm() {
 
     return (
 
-        <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit}>
 
-            <input
-                name="make"
-                value={form.make}
-                onChange={handleChange}
-                placeholder="Make"
-            />
+        <input
+            className="input"
+            name="make"
+            value={form.make}
+            onChange={handleChange}
+            placeholder="Vehicle Make"
+        />
 
-            <br /><br />
+        <input
+            className="input"
+            name="model"
+            value={form.model}
+            onChange={handleChange}
+            placeholder="Vehicle Model"
+        />
 
-            <input
-                name="model"
-                value={form.model}
-                onChange={handleChange}
-                placeholder="Model"
-            />
+        <input
+            className="input"
+            name="category"
+            value={form.category}
+            onChange={handleChange}
+            placeholder="Category"
+        />
 
-            <br /><br />
+        <input
+            className="input"
+            type="number"
+            name="price"
+            value={form.price}
+            onChange={handleChange}
+            placeholder="Price"
+        />
 
-            <input
-                name="category"
-                value={form.category}
-                onChange={handleChange}
-                placeholder="Category"
-            />
+        <input
+            className="input"
+            type="number"
+            name="quantity"
+            value={form.quantity}
+            onChange={handleChange}
+            placeholder="Quantity"
+        />
 
-            <br /><br />
+        <div
+            style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginTop: "20px",
+            }}
+        >
 
-            <input
-                type="number"
-                name="price"
-                value={form.price}
-                onChange={handleChange}
-                placeholder="Price"
-            />
-
-            <br /><br />
-
-            <input
-                type="number"
-                name="quantity"
-                value={form.quantity}
-                onChange={handleChange}
-                placeholder="Quantity"
-            />
-
-            <br /><br />
-
-            <button type="submit">
-
-                Update Vehicle
-
+            <button
+                type="button"
+                className="btn btn-outline"
+                onClick={() => navigate("/vehicles")}
+            >
+                Cancel
             </button>
 
-            {error &&
+            <button
+                className="btn btn-primary"
+                type="submit"
+            >
+                Update Vehicle
+            </button>
 
-                <p style={{ color: "red" }}>
+        </div>
 
-                    {error}
+        {error && (
 
-                </p>
-            }
+            <p
+                style={{
+                    color: "#ff8a8a",
+                    marginTop: "20px",
+                    textAlign: "center",
+                }}
+            >
+                {error}
+            </p>
 
-        </form>
-    );
+        )}
+
+    </form>
+
+);
 }

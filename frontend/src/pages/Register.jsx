@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { register } from "../services/authService";
 import { useAuth } from "../hooks/useAuth";
 
@@ -17,10 +17,12 @@ export default function Register() {
     const [error, setError] = useState("");
 
     const handleChange = (e) => {
+
         setForm({
             ...form,
             [e.target.name]: e.target.value,
         });
+
     };
 
     const handleSubmit = async (e) => {
@@ -42,57 +44,91 @@ export default function Register() {
                 err.response?.data?.message ||
                 "Registration failed"
             );
+
         }
+
     };
 
     return (
 
-        <div>
+        <div className="auth-container">
 
-            <h1>Register</h1>
+            <div className="auth-card">
 
-            <form onSubmit={handleSubmit}>
+                <h1 className="auth-title">
 
-                <input
-                    name="name"
-                    placeholder="Name"
-                    value={form.name}
-                    onChange={handleChange}
-                />
+                    🚗 AutoHub
 
-                <br /><br />
+                </h1>
 
-                <input
-                    name="email"
-                    placeholder="Email"
-                    value={form.email}
-                    onChange={handleChange}
-                />
+                <p className="auth-subtitle">
 
-                <br /><br />
+                    Create your account
 
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    value={form.password}
-                    onChange={handleChange}
-                />
-
-                <br /><br />
-
-                <button type="submit">
-                    Register
-                </button>
-
-            </form>
-
-            {error && (
-                <p style={{ color: "red" }}>
-                    {error}
                 </p>
-            )}
+
+                <form onSubmit={handleSubmit}>
+
+                    <input
+                        className="input"
+                        name="name"
+                        placeholder="Name"
+                        value={form.name}
+                        onChange={handleChange}
+                    />
+
+                    <input
+                        className="input"
+                        name="email"
+                        placeholder="Email"
+                        value={form.email}
+                        onChange={handleChange}
+                    />
+
+                    <input
+                        className="input"
+                        type="password"
+                        name="password"
+                        placeholder="Password"
+                        value={form.password}
+                        onChange={handleChange}
+                    />
+
+                    <button
+                        className="btn btn-primary auth-btn"
+                        type="submit"
+                    >
+                        Register
+                    </button>
+
+                </form>
+
+                {error && (
+
+                    <p className="auth-error">
+
+                        {error}
+
+                    </p>
+
+                )}
+
+                <p className="auth-footer">
+
+                    Already have an account?
+
+                    <Link to="/">
+
+                        Login
+
+                    </Link>
+
+                </p>
+
+            </div>
 
         </div>
+
     );
+
 }

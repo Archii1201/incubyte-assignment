@@ -1,16 +1,28 @@
 import AddVehicleForm from "../components/AddVehicleForm";
+import Layout from "../components/Layout";
 
 export default function AddVehicle() {
 
     return (
 
-        <div className="container">
+        <Layout>
 
-            <h2>Add Vehicle</h2>
+            <div className="container">
 
-            <AddVehicleForm />
+                <h1 className="page-title">
+                    Add New Vehicle
+                </h1>
 
-        </div>
+                <div className="card">
+
+                    <AddVehicleForm />
+
+                </div>
+
+            </div>
+
+        </Layout>
 
     );
+
 }

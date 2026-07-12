@@ -21,6 +21,7 @@ export default function Login() {
             ...form,
             [e.target.name]: e.target.value,
         });
+
     };
 
     const handleSubmit = async (e) => {
@@ -42,54 +43,80 @@ export default function Login() {
                 err.response?.data?.message ||
                 "Login failed"
             );
+
         }
+
     };
 
     return (
 
-        <div>
+        <div className="auth-container">
 
-            <h1>Login</h1>
+            <div className="auth-card">
 
-            <form onSubmit={handleSubmit}>
+                <h1 className="auth-title">
+                    🚗 AutoHub
+                </h1>
 
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    value={form.email}
-                    onChange={handleChange}
-                />
-
-                <br /><br />
-
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    value={form.password}
-                    onChange={handleChange}
-                />
-
-                <br /><br />
-
-                <button type="submit">
-                    Login
-                </button>
-
-            </form>
-
-            {error && (
-                <p style={{ color: "red" }}>
-                    {error}
+                <p className="auth-subtitle">
+                    Login to continue
                 </p>
-            )}
 
-            <p>
-                Don't have an account?
-                <Link to="/register"> Register</Link>
-            </p>
+                <form onSubmit={handleSubmit}>
+
+                    <input
+                        className="input"
+                        type="email"
+                        name="email"
+                        placeholder="Email"
+                        value={form.email}
+                        onChange={handleChange}
+                    />
+
+                    <input
+                        className="input"
+                        type="password"
+                        name="password"
+                        placeholder="Password"
+                        value={form.password}
+                        onChange={handleChange}
+                    />
+
+                    <button
+                        className="btn btn-primary auth-btn"
+                        type="submit"
+                    >
+                        Login
+                    </button>
+
+                </form>
+
+                {error && (
+
+                    <p className="auth-error">
+
+                        {error}
+
+                    </p>
+
+                )}
+
+                <p className="auth-footer">
+
+                    Don't have an account?
+
+                    <Link to="/register">
+
+                        Register
+
+                    </Link>
+
+                </p>
+
+            </div>
 
         </div>
+
     );
+
 }

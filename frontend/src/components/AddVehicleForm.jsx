@@ -62,49 +62,68 @@ export default function AddVehicleForm() {
 
     return (
 
-        <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit}>
 
-            <input
-                name="make"
-                placeholder="Make"
-                value={form.make}
-                onChange={handleChange}
-            />
+        <input
+            className="input"
+            name="make"
+            placeholder="Vehicle Make"
+            value={form.make}
+            onChange={handleChange}
+        />
 
-            <input
-                name="model"
-                placeholder="Model"
-                value={form.model}
-                onChange={handleChange}
-            />
+        <input
+            className="input"
+            name="model"
+            placeholder="Vehicle Model"
+            value={form.model}
+            onChange={handleChange}
+        />
 
-            <input
-                name="category"
-                placeholder="Category"
-                value={form.category}
-                onChange={handleChange}
-            />
+        <input
+            className="input"
+            name="category"
+            placeholder="Category"
+            value={form.category}
+            onChange={handleChange}
+        />
 
-            <input
-                type="number"
-                name="price"
-                placeholder="Price"
-                value={form.price}
-                onChange={handleChange}
-            />
+        <input
+            className="input"
+            type="number"
+            name="price"
+            placeholder="Price"
+            value={form.price}
+            onChange={handleChange}
+        />
 
-            <input
-                type="number"
-                name="quantity"
-                placeholder="Quantity"
-                value={form.quantity}
-                onChange={handleChange}
-            />
+        <input
+            className="input"
+            type="number"
+            name="quantity"
+            placeholder="Quantity"
+            value={form.quantity}
+            onChange={handleChange}
+        />
 
-            <button type="submit">
+        <div
+            style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                marginTop: "20px",
+            }}
+        >
+
+            <button
+                className="btn btn-primary"
+                type="submit"
+            >
                 Add Vehicle
             </button>
 
-        </form>
-    );
+        </div>
+
+    </form>
+
+);
 }
