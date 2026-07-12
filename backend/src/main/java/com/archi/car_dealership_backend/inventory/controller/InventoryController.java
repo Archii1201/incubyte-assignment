@@ -33,4 +33,26 @@ public class InventoryController {
 
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/{id}/restock")
+    public ResponseEntity<Void> restockVehicle(
+
+            @PathVariable
+            UUID id,
+
+            @RequestParam
+            @Min(1)
+            int quantity,
+
+            Authentication authentication
+    ) {
+
+        inventoryService.restockVehicle(
+                id,
+                quantity,
+                authentication.getName()
+        );
+
+        return ResponseEntity.ok().build();
+    }
 }
