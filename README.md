@@ -421,7 +421,7 @@ This layered testing strategy provides confidence that both individual component
 
 ## 🔗 Links
 
-- **GitHub:** https://github.com/Archii1201/car-dealership-inventory
+- **GitHub:** https://github.com/Archii1201/incubyte-assignment
 - **Swagger API:** http://localhost:8080/swagger-ui.html (after running backend)
 - **JaCoCo Backend Report:** `backend/target/site/jacoco/index.html`
 - **Frontend Coverage:** `frontend/coverage/index.html`
