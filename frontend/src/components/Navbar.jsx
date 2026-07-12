@@ -10,7 +10,7 @@ export default function Navbar() {
 
         localStorage.clear();
 
-        navigate("/login");
+        navigate("/");
 
     };
 

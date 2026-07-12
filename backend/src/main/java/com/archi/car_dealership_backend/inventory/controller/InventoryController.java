@@ -36,6 +36,7 @@ public class InventoryController {
     }
 
     @PostMapping("/{id}/restock")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> restockVehicle(
 
             @PathVariable

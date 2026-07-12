@@ -132,58 +132,7 @@ export default function Dashboard() {
 
                 </div>
 
-                <h2
-                    style={{
-                        marginTop: "35px",
-                        marginBottom: "20px",
-                    }}
-                >
-                    System Overview
-                </h2>
-
-                <div className="dashboard-grid">
-
-                    <div className="dashboard-card">
-
-                        <h3>Total Vehicles</h3>
-
-                        <h1>25</h1>
-
-                        <p>Registered Vehicles</p>
-
-                    </div>
-
-                    <div className="dashboard-card">
-
-                        <h3>Low Stock</h3>
-
-                        <h1>3</h1>
-
-                        <p>Need Restocking</p>
-
-                    </div>
-
-                    <div className="dashboard-card">
-
-                        <h3>Out of Stock</h3>
-
-                        <h1>1</h1>
-
-                        <p>Unavailable Vehicles</p>
-
-                    </div>
-
-                    <div className="dashboard-card">
-
-                        <h3>Inventory Value</h3>
-
-                        <h1>₹4.2L</h1>
-
-                        <p>Total Inventory Worth</p>
-
-                    </div>
-
-                </div>
+                
 
                 <div
                     className="card section"

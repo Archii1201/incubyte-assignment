@@ -53,8 +53,11 @@ public class VehicleServiceImpl implements VehicleService {
         vehicle.setModel(request.model());
         vehicle.setCategory(request.category());
         vehicle.setPrice(request.price());
-        vehicle.setQuantity(request.quantity());
-        // Note: status and createdAt are NOT updated
+        if (vehicle.getQuantity() == 0) {
+            vehicle.setStatus(VehicleStatus.OUT_OF_STOCK);
+        } else if (vehicle.getStatus() != VehicleStatus.DISCONTINUED) {
+            vehicle.setStatus(VehicleStatus.ACTIVE);
+        }
 
         Vehicle updated = vehicleRepository.save(vehicle);
         return VehicleMapper.toResponse(updated);

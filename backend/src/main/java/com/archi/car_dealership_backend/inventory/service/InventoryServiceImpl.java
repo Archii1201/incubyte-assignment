@@ -7,6 +7,7 @@ import com.archi.car_dealership_backend.inventory.dto.RestockResponse;
 import com.archi.car_dealership_backend.repository.InventoryTransactionRepository;
 import com.archi.car_dealership_backend.repository.UserRepository;
 import com.archi.car_dealership_backend.repository.VehicleRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.archi.car_dealership_backend.auth.exception.BusinessRuleException;
@@ -23,6 +24,7 @@ public class InventoryServiceImpl implements InventoryService {
     private final InventoryTransactionRepository transactionRepository;
 
     @Override
+    @Transactional
     public PurchaseResponse purchaseVehicle(UUID vehicleId,
                                 int quantity,
                                 String email){
@@ -51,7 +53,9 @@ public class InventoryServiceImpl implements InventoryService {
         vehicle.setQuantity(
                 vehicle.getQuantity() - quantity
         );
-
+        if (vehicle.getQuantity() == 0) {
+            vehicle.setStatus(VehicleStatus.OUT_OF_STOCK);
+        }
         vehicleRepository.save(vehicle);
 
         InventoryTransaction transaction =
@@ -69,6 +73,7 @@ public class InventoryServiceImpl implements InventoryService {
                 .build();
     }
     @Override
+    @Transactional
     public RestockResponse restockVehicle(
             UUID vehicleId,
             int quantity,
@@ -87,7 +92,13 @@ public class InventoryServiceImpl implements InventoryService {
                 vehicle.getQuantity() + quantity
         );
 
-        if (vehicle.getStatus() != VehicleStatus.ACTIVE) {
+        vehicle.setQuantity(
+                vehicle.getQuantity() + quantity
+        );
+
+        if (vehicle.getQuantity() > 0 &&
+                vehicle.getStatus() != VehicleStatus.DISCONTINUED) {
+
             vehicle.setStatus(VehicleStatus.ACTIVE);
         }
 
