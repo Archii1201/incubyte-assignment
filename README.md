@@ -143,8 +143,8 @@ npm run dev
 ### Accessing the Application
 
 - **Frontend:** http://localhost:5173
-- **Swagger API Docs:** http://localhost:8080/swagger-ui.html
-- **API Base URL:** http://localhost:8080/api
+- **Swagger API Docs:** http://localhost:8081/swagger-ui.html
+- **API Base URL:** http://localhost:8081/api
 
 ---
 
